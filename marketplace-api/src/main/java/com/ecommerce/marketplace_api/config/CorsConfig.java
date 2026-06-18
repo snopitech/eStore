@@ -11,16 +11,18 @@ public class CorsConfig implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
                 .allowedOrigins(
-                    "http://localhost:5173",
-                    "http://localhost:5174",
-                    "http://localhost:3000",
-                    "https://estore.snopitech.com",
-                    "https://admin.snopitech.com",
-                    "https://api.estore.snopitech.com"
-                )
+    "http://localhost:5173",
+    "http://localhost:5174",
+    "https://estore-main.snopitech.workers.dev",
+    "https://estore.snopitech.com",
+    "https://admin.snopitech.com"
+)
+
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
                 .allowCredentials(true)
                 .maxAge(3600);
+
+                
     }
 }

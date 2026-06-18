@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:8087/api';
+const API_BASE_URL = 'https://api.estore.snopitech.com/api';
 
 export const api = {
   getProducts: async () => {
