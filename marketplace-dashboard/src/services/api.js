@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://[2600:1700:ad30:72f0:3827:ea61:cfd:4ba8]:8080/api';
+const API_BASE_URL = 'https://pesky-dividers-blend.ngrok-free.dev/api';
 
 export const api = {
   getProducts: async () => {
