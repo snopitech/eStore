@@ -1,7 +1,14 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL;
+
 export const api = {
+  // Products
   getProducts: async () => {
     const response = await fetch(`${API_BASE_URL}/products`);
+    return response.json();
+  },
+  
+  getProductById: async (id) => {
+    const response = await fetch(`${API_BASE_URL}/products/${id}`);
     return response.json();
   },
   
@@ -10,8 +17,13 @@ export const api = {
     return response.json();
   },
   
-  getProductById: async (id) => {
-    const response = await fetch(`${API_BASE_URL}/products/${id}`);
+  // Auth
+  register: async (userData) => {
+    const response = await fetch(`${API_BASE_URL}/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(userData)
+    });
     return response.json();
   },
   
@@ -24,11 +36,107 @@ export const api = {
     return response.json();
   },
   
-  register: async (userData) => {
-    const response = await fetch(`${API_BASE_URL}/auth/register`, {
+  // Cart (requires auth)
+  getCart: async (token) => {
+    const response = await fetch(`${API_BASE_URL}/cart`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    return response.json();
+  },
+  
+  addToCart: async (token, productId, quantity) => {
+    const response = await fetch(`${API_BASE_URL}/cart/add`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(userData)
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ productId, quantity })
+    });
+    return response.json();
+  },
+  
+  // Orders
+  checkout: async (token, orderData) => {
+    const response = await fetch(`${API_BASE_URL}/orders/checkout`, {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(orderData)
+    });
+    return response.json();
+  },
+  
+  getMyOrders: async (token) => {
+    const response = await fetch(`${API_BASE_URL}/orders`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    return response.json();
+  },
+  
+  // Payment
+  createPaymentIntent: async (token, orderId) => {
+    const response = await fetch(`${API_BASE_URL}/payments/create-payment-intent`, {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ orderId })
+    });
+    return response.json();
+  },
+  
+  // Wishlist
+  getWishlist: async (token) => {
+    const response = await fetch(`${API_BASE_URL}/wishlist`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    return response.json();
+  },
+  
+  addToWishlist: async (token, productId) => {
+    const response = await fetch(`${API_BASE_URL}/wishlist/add/${productId}`, {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    return response.json();
+  },
+  
+  removeFromWishlist: async (token, productId) => {
+    const response = await fetch(`${API_BASE_URL}/wishlist/remove/${productId}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    return response.json();
+  },
+  
+  checkWishlist: async (token, productId) => {
+    const response = await fetch(`${API_BASE_URL}/wishlist/check/${productId}`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    return response.json();
+  },
+  
+  // Reviews
+  getProductReviews: async (productId) => {
+    const response = await fetch(`${API_BASE_URL}/reviews/product/${productId}`);
+    return response.json();
+  },
+  
+  createReview: async (token, reviewData) => {
+    const response = await fetch(`${API_BASE_URL}/reviews`, {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(reviewData)
     });
     return response.json();
   }
