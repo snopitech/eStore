@@ -1,0 +1,47 @@
+{"properties": [
+  {
+    "name": "stripe.webhook.secret",
+    "type": "java.lang.String",
+    "description": "A description for 'stripe.webhook.secret'"
+  },
+  {
+    "name": "stripe.api.key",
+    "type": "java.lang.String",
+    "description": "A description for 'stripe.api.key'"
+  },
+  {
+    "name": "jwt.secret",
+    "type": "java.lang.String",
+    "description": "A description for 'jwt.secret'"
+  },
+  {
+    "name": "file.upload-dir",
+    "type": "java.lang.String",
+    "description": "A description for 'file.upload-dir'"
+  },
+  {
+    "name": "cloudflare.r2.endpoint",
+    "type": "java.lang.String",
+    "description": "A description for 'cloudflare.r2.endpoint'"
+  },
+  {
+    "name": "cloudflare.r2.access-key-id",
+    "type": "java.lang.String",
+    "description": "A description for 'cloudflare.r2.access-key-id'"
+  },
+  {
+    "name": "cloudflare.r2.secret-access-key",
+    "type": "java.lang.String",
+    "description": "A description for 'cloudflare.r2.secret-access-key'"
+  },
+  {
+    "name": "cloudflare.r2.bucket-name",
+    "type": "java.lang.String",
+    "description": "A description for 'cloudflare.r2.bucket-name'"
+  },
+  {
+    "name": "cloudflare.r2.public-url",
+    "type": "java.lang.String",
+    "description": "A description for 'cloudflare.r2.public-url'"
+  }
+]}

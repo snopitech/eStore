@@ -1,0 +1,16 @@
+{
+  "dependencies": {
+    "@heroicons/react": "^2.2.0",
+    "@stomp/stompjs": "^7.3.0",
+    "@stripe/stripe-js": "^9.8.0",
+    "axios": "^1.18.0",
+    "qrcode.react": "^4.2.0",
+    "react-router-dom": "^7.17.0",
+    "sockjs-client": "^1.6.1"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.5.0",
+    "postcss": "^8.5.15",
+    "tailwindcss": "^4.3.1"
+  }
+}
