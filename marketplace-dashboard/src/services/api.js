@@ -1,29 +1,13 @@
 const API_BASE_URL = 'http://[2600:1700:ad30:72f0:3827:ea61:cfd:4ba8]:8080/api';
 
 export const api = {
-  // Products
   getProducts: async () => {
     const response = await fetch(`${API_BASE_URL}/products`);
     return response.json();
   },
   
-  getProductById: async (id) => {
-    const response = await fetch(`${API_BASE_URL}/products/${id}`);
-    return response.json();
-  },
-  
   getCategories: async () => {
     const response = await fetch(`${API_BASE_URL}/categories`);
-    return response.json();
-  },
-  
-  // Auth
-  register: async (userData) => {
-    const response = await fetch(`${API_BASE_URL}/auth/register`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(userData)
-    });
     return response.json();
   },
   
@@ -36,7 +20,15 @@ export const api = {
     return response.json();
   },
   
-  // Cart (requires auth)
+  register: async (userData) => {
+    const response = await fetch(`${API_BASE_URL}/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(userData)
+    });
+    return response.json();
+  },
+  
   getCart: async (token) => {
     const response = await fetch(`${API_BASE_URL}/cart`, {
       headers: { 'Authorization': `Bearer ${token}` }
@@ -56,7 +48,6 @@ export const api = {
     return response.json();
   },
   
-  // Orders
   checkout: async (token, orderData) => {
     const response = await fetch(`${API_BASE_URL}/orders/checkout`, {
       method: 'POST',
@@ -76,7 +67,6 @@ export const api = {
     return response.json();
   },
   
-  // Payment
   createPaymentIntent: async (token, orderId) => {
     const response = await fetch(`${API_BASE_URL}/payments/create-payment-intent`, {
       method: 'POST',
@@ -89,7 +79,6 @@ export const api = {
     return response.json();
   },
   
-  // Wishlist
   getWishlist: async (token) => {
     const response = await fetch(`${API_BASE_URL}/wishlist`, {
       headers: { 'Authorization': `Bearer ${token}` }
@@ -123,7 +112,6 @@ export const api = {
     return response.json();
   },
   
-  // Reviews
   getProductReviews: async (productId) => {
     const response = await fetch(`${API_BASE_URL}/reviews/product/${productId}`);
     return response.json();
