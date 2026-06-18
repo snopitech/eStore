@@ -1,5 +1,4 @@
 const API_BASE_URL = 'https://pesky-dividers-blend.ngrok-free.dev/api';
-
 export const api = {
   getProducts: async () => {
     const response = await fetch(`${API_BASE_URL}/products`);
