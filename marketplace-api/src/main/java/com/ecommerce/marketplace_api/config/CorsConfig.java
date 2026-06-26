@@ -13,12 +13,13 @@ public class CorsConfig implements WebMvcConfigurer {
                 .allowedOrigins(
                     "http://localhost:5173",
                     "http://localhost:5174",
-                    "http://192.168.1.221:5173",    // ← ADD THIS
-                    "http://192.168.1.221:5174",    // ← ADD THIS
+                    "http://192.168.1.221:5173",
+                    "http://192.168.1.221:5174",
                     "https://estore-main.snopitech.workers.dev",
                     "https://estore.snopitech.com",
                     "https://admin.snopitech.com",
-                    "https://pesky-dividers-blend.ngrok-free.dev"
+                    "https://pesky-dividers-blend.ngrok-free.dev",
+                    "https://estore.snopitech.com"
                 )
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
