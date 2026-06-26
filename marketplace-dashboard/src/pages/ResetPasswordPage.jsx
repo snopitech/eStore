@@ -4,7 +4,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 
-const API_BASE_URL = 'http://localhost:8087/api';
+const API_BASE_URL = 'http://estore.snopitech.com/api';
 
 function ResetPasswordPage() {
   const [searchParams] = useSearchParams();

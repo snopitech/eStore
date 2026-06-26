@@ -11,7 +11,7 @@ import {
 } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 
-const API_BASE_URL = 'http://localhost:8087/api';
+const API_BASE_URL = 'http://estore.snopitech.com/api';
 
 // Your LIVE publishable key
 const stripePromise = loadStripe('pk_live_51TkTGpB8QOHyNrOICoA47jjjbsjNKiwlfJb5FgVaQvqJczwzBRwCHPqFAGq2oBQzZ6gPLMOEo5al5TBB4w7itUwS00bzkAknW3');

@@ -6,7 +6,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useAuth } from './AuthContext';
 
 const CartContext = createContext();
-const API_BASE_URL = 'http://localhost:8087/api';
+const API_BASE_URL = 'http://estore.snopitech.com/api';
 
 export function CartProvider({ children }) {
   const [cartItems, setCartItems] = useState([]);

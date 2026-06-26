@@ -6,7 +6,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 
-const API_BASE_URL = 'http://localhost:8087/api';
+const API_BASE_URL = 'http://estore.snopitech.com/api';
 
 function CategoryPage() {
   const { categoryId } = useParams();

@@ -6,7 +6,7 @@ import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 
 // ===== CHANGE THIS LINE =====
-// From: const API_BASE_URL = 'http://localhost:8087/api';
+// From: const API_BASE_URL = 'http://estore.snopitech.com/api';
 // To: const API_BASE_URL = '/api';
 // OR use environment variable:
 const API_BASE_URL = import.meta.env.VITE_API_URL 
