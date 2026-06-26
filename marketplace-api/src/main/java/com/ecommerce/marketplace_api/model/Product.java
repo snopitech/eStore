@@ -179,6 +179,20 @@ public class Product {
     
     @Column(name = "current_bid")
     private BigDecimal currentBid;
+
+    // ===== MISSING FIELDS FROM DATABASE =====
+    @Column(name = "cost_per_item")
+    private BigDecimal costPerItem;
+    
+    @Column(name = "barcode", length = 100)
+    private String barcode;
+    
+    @Column(name = "weight_unit")
+    @Enumerated(EnumType.STRING)
+    private WeightUnit weightUnit;
+    
+    @Column(columnDefinition = "JSON")
+    private String tags;
     
     public Product() {}
     
@@ -349,6 +363,39 @@ public class Product {
     
     public BigDecimal getCurrentBid() { return currentBid; }
     public void setCurrentBid(BigDecimal currentBid) { this.currentBid = currentBid; }
+
+    // ===== NEW GETTERS AND SETTERS FOR MISSING FIELDS =====
+    public BigDecimal getCostPerItem() {
+        return costPerItem;
+    }
+    
+    public void setCostPerItem(BigDecimal costPerItem) {
+        this.costPerItem = costPerItem;
+    }
+    
+    public String getBarcode() {
+        return barcode;
+    }
+    
+    public void setBarcode(String barcode) {
+        this.barcode = barcode;
+    }
+    
+    public WeightUnit getWeightUnit() {
+        return weightUnit;
+    }
+    
+    public void setWeightUnit(WeightUnit weightUnit) {
+        this.weightUnit = weightUnit;
+    }
+    
+    public String getTags() {
+        return tags;
+    }
+    
+    public void setTags(String tags) {
+        this.tags = tags;
+    }
     
     @PrePersist
     protected void onCreate() {
