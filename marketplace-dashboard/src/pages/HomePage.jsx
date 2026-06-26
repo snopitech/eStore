@@ -5,7 +5,13 @@ import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 
-const API_BASE_URL = 'http://localhost:8087/api';
+// ===== CHANGE THIS LINE =====
+// From: const API_BASE_URL = 'http://localhost:8087/api';
+// To: const API_BASE_URL = '/api';
+// OR use environment variable:
+const API_BASE_URL = import.meta.env.VITE_API_URL 
+  ? `${import.meta.env.VITE_API_URL}/api` 
+  : '/api';
 
 function HomePage() {
   const [products, setProducts] = useState([]);
