@@ -27,13 +27,15 @@ public class PaymentService {
     PaymentService(OrderRepository orderRepository) {
         this.orderRepository = orderRepository;
     }
-
-   @PostConstruct
+@PostConstruct
 public void init() {
-    Stripe.apiKey = "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";
-    System.out.println("✅ Stripe API key initialized");
+    Stripe.apiKey = System.getenv("STRIPE_API_KEY");
+    if (Stripe.apiKey == null || Stripe.apiKey.isEmpty()) {
+        System.err.println("⚠️ STRIPE_API_KEY environment variable not set!");
+    } else {
+        System.out.println("✅ Stripe API key initialized");
+    }
 }
-    
     @Transactional
     public PaymentResponse createPaymentIntent(Long orderId) throws StripeException {
         Order order = orderRepository.findById(orderId)
