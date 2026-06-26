@@ -1,0 +1,11 @@
+{
+  "provider": "java",
+  "build": {
+    "builder": "NIXPACKS",
+    "buildCommand": "cd marketplace-api && mvn clean package -DskipTests"
+  },
+  "deploy": {
+    "startCommand": "cd marketplace-api && java -jar target/*.jar",
+    "healthcheckPath": "/actuator/health"
+  }
+}
