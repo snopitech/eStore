@@ -101,4 +101,9 @@ public class Review {
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
     }
+
+    public void setSellerId(Long id2) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'setSellerId'");
+    }
 }

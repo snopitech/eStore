@@ -5,10 +5,11 @@ import com.ecommerce.marketplace_api.model.Order;
 import com.ecommerce.marketplace_api.model.OrderStatus;
 import com.ecommerce.marketplace_api.model.PaymentStatus;
 import com.ecommerce.marketplace_api.repository.OrderRepository;
+import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.PaymentIntent;
 import com.stripe.param.PaymentIntentCreateParams;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +27,12 @@ public class PaymentService {
     PaymentService(OrderRepository orderRepository) {
         this.orderRepository = orderRepository;
     }
+
+   @PostConstruct
+public void init() {
+    Stripe.apiKey = "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";
+    System.out.println("✅ Stripe API key initialized");
+}
     
     @Transactional
     public PaymentResponse createPaymentIntent(Long orderId) throws StripeException {
@@ -33,6 +40,9 @@ public class PaymentService {
                 .orElseThrow(() -> new RuntimeException("Order not found"));
         
         long amountInCents = order.getTotalAmount().multiply(new java.math.BigDecimal("100")).longValue();
+        
+        System.out.println("Creating payment intent for order: " + order.getOrderNumber());
+        System.out.println("Amount: " + amountInCents + " cents");
         
         PaymentIntentCreateParams params = PaymentIntentCreateParams.builder()
                 .setAmount(amountInCents)
@@ -43,6 +53,8 @@ public class PaymentService {
                 .build();
         
         PaymentIntent paymentIntent = PaymentIntent.create(params);
+        
+        System.out.println("Payment Intent created: " + paymentIntent.getId());
         
         order.setPaymentIntentId(paymentIntent.getId());
         orderRepository.save(order);
@@ -97,7 +109,6 @@ public class PaymentService {
                 handlePaymentSuccess(paymentIntentId);
             } else {
                 System.out.println("Extraction returned null - trying manual extraction");
-                // Manual extraction as fallback
                 int piIndex = payload.indexOf("pi_");
                 if (piIndex != -1) {
                     int end = payload.indexOf("\"", piIndex);
@@ -118,7 +129,6 @@ public class PaymentService {
     }
     
     private String extractPaymentIntentId(String payload) {
-        // Look for "id":"pi_"
         String searchFor = "\"id\":\"pi_";
         int start = payload.indexOf(searchFor);
         if (start == -1) {

@@ -3,106 +3,95 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../services/api';
 
-function Sellers() {
-  const [sellers, setSellers] = useState([]);
+function Users() {
+  const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const token = localStorage.getItem('adminToken');
 
   useEffect(() => {
-    fetchSellers();
+    fetchUsers();
   }, []);
 
-  const fetchSellers = async () => {
+  const fetchUsers = async () => {
     try {
-      const data = await api.getSellers();
-      setSellers(data);
+      const data = await api.getUsers();
+      setUsers(data);
       setLoading(false);
     } catch (error) {
-      console.error('Error fetching sellers:', error);
+      console.error('Error fetching users:', error);
       setLoading(false);
     }
   };
 
-  const approveSeller = async (sellerId) => {
+  const updateUserRole = async (userId, newRole) => {
     try {
-      await api.approveSeller(sellerId);
-      fetchSellers();
+      await api.updateUserRole(userId, newRole);
+      fetchUsers();
     } catch (error) {
-      console.error('Error approving seller:', error);
-    }
-  };
-
-  const blockSeller = async (sellerId) => {
-    try {
-      await api.blockSeller(sellerId);
-      fetchSellers();
-    } catch (error) {
-      console.error('Error blocking seller:', error);
+      console.error('Error updating user role:', error);
     }
   };
 
   if (loading) {
-    return <div className="text-center py-12">Loading sellers...</div>;
+    return <div className="text-center py-12 text-sm sm:text-base">Loading users...</div>;
   }
 
   return (
     <div>
-      <h2 className="text-2xl font-bold mb-6">Sellers Management</h2>
+      <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Users Management</h2>
       <div className="bg-white rounded-lg shadow overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50 border-b">
+        <div className="admin-table-wrap">
+          <table className="admin-table">
+            <thead>
               <tr>
-                <th className="text-left py-3 px-4">ID</th>
-                <th className="text-left py-3 px-4">Store Name</th>
-                <th className="text-left py-3 px-4">Owner</th>
-                <th className="text-left py-3 px-4">Products</th>
-                <th className="text-left py-3 px-4">Sales</th>
-                <th className="text-left py-3 px-4">Status</th>
-                <th className="text-left py-3 px-4">Actions</th>
+                <th>#</th>
+                <th>Email</th>
+                <th>Name</th>
+                <th>Role</th>
+                <th>Orders</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {sellers.map((seller) => (
-                <tr key={seller.id} className="border-b hover:bg-gray-50">
-                  <td className="py-3 px-4">{seller.id}</td>
-                  <td className="py-3 px-4 font-medium">{seller.storeName}</td>
-                  <td className="py-3 px-4">{seller.user?.email || 'N/A'}</td>
-                  <td className="py-3 px-4">{seller.totalProducts || 0}</td>
-                  <td className="py-3 px-4">{seller.totalSales || 0}</td>
-                  <td className="py-3 px-4">
-                    <span className={`px-2 py-1 rounded text-xs ${
-                      seller.isApproved ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+              {users.map((user, index) => (
+                <tr key={user.id}>
+                  <td className="text-gray-500 text-xs sm:text-sm">{index + 1}</td>
+                  <td className="text-xs sm:text-sm">{user.email}</td>
+                  <td className="text-xs sm:text-sm">{user.firstName} {user.lastName}</td>
+                  <td>
+                    <span className={`px-2 py-0.5 rounded text-[8px] sm:text-xs ${
+                      user.userType === 'ADMIN' ? 'bg-red-100 text-red-800' :
+                      user.userType === 'SELLER' ? 'bg-blue-100 text-blue-800' :
+                      'bg-green-100 text-green-800'
                     }`}>
-                      {seller.isApproved ? 'Approved' : 'Pending'}
+                      {user.userType || 'BUYER'}
                     </span>
-                    {!seller.isActive && (
-                      <span className="ml-1 px-2 py-1 rounded text-xs bg-red-100 text-red-800">Blocked</span>
-                    )}
                   </td>
-                  <td className="py-3 px-4">
-                    <div className="flex gap-2">
-                      {!seller.isApproved && (
-                        <button
-                          onClick={() => approveSeller(seller.id)}
-                          className="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700"
-                        >
-                          Approve
-                        </button>
+                  <td className="text-center text-xs sm:text-sm">{user.orders?.length || 0}</td>
+                  <td>
+                    <div className="flex flex-wrap gap-0.5">
+                      {user.userType !== 'ADMIN' && (
+                        <>
+                          <button
+                            onClick={() => updateUserRole(user.id, 'SELLER')}
+                            className="bg-blue-600 text-white px-2 py-0.5 rounded text-[8px] sm:text-xs hover:bg-blue-700 min-h-7"
+                          >
+                            Make Seller
+                          </button>
+                          <button
+                            onClick={() => updateUserRole(user.id, 'ADMIN')}
+                            className="bg-red-600 text-white px-2 py-0.5 rounded text-[8px] sm:text-xs hover:bg-red-700 min-h-7"
+                          >
+                            Make Admin
+                          </button>
+                        </>
                       )}
-                      {seller.isActive ? (
+                      {user.userType === 'ADMIN' && (
                         <button
-                          onClick={() => blockSeller(seller.id)}
-                          className="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700"
+                          onClick={() => updateUserRole(user.id, 'BUYER')}
+                          className="bg-yellow-600 text-white px-2 py-0.5 rounded text-[8px] sm:text-xs hover:bg-yellow-700 min-h-7"
                         >
-                          Block
-                        </button>
-                      ) : (
-                        <button
-                          onClick={() => approveSeller(seller.id)}
-                          className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700"
-                        >
-                          Unblock
+                          Remove Admin
                         </button>
                       )}
                     </div>
@@ -117,4 +106,4 @@ function Sellers() {
   );
 }
 
-export default Sellers;
+export default Users;

@@ -6,6 +6,7 @@ import com.ecommerce.marketplace_api.model.Order;
 import com.ecommerce.marketplace_api.model.OrderStatus;
 import com.ecommerce.marketplace_api.model.User;
 import com.ecommerce.marketplace_api.repository.OrderRepository;
+import com.ecommerce.marketplace_api.repository.UserRepository;
 import com.ecommerce.marketplace_api.service.OrderService;
 import com.ecommerce.marketplace_api.service.UserService;
 import com.ecommerce.marketplace_api.utils.JwtUtil;
@@ -23,18 +24,18 @@ import java.util.Map;
 public class OrderController {
     
     private final OrderService orderService;
-    
     private final UserService userService;
-    
     private final JwtUtil jwtUtil;
-    
     private final OrderRepository orderRepository;
+    private final UserRepository userRepository;
 
-    OrderController(OrderService orderService, UserService userService, JwtUtil jwtUtil, OrderRepository orderRepository) {
+    OrderController(OrderService orderService, UserService userService, JwtUtil jwtUtil, 
+                    OrderRepository orderRepository, UserRepository userRepository) {
         this.orderService = orderService;
         this.userService = userService;
         this.jwtUtil = jwtUtil;
         this.orderRepository = orderRepository;
+        this.userRepository = userRepository;
     }
     
     private Long getUserIdFromToken(String authHeader) {
@@ -116,6 +117,23 @@ public class OrderController {
             return ResponseEntity.ok("Order status updated");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/check-purchase")
+    public ResponseEntity<Map<String, Boolean>> checkPurchase(
+            @RequestHeader("Authorization") String authHeader,
+            @RequestParam Long productId) {
+        try {
+            String token = authHeader.substring(7);
+            String email = jwtUtil.extractEmail(token);
+            User user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+            
+            boolean hasPurchased = orderService.hasUserPurchasedProduct(user.getId(), productId);
+            return ResponseEntity.ok(Map.of("hasPurchased", hasPurchased));
+        } catch (Exception e) {
+            return ResponseEntity.ok(Map.of("hasPurchased", false));
         }
     }
     

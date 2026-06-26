@@ -8,6 +8,7 @@ public class ProductResponse implements Serializable {
     
     private static final long serialVersionUID = 1L;
     
+    // ===== BASIC FIELDS =====
     private Long id;
     private String name;
     private String slug;
@@ -29,36 +30,28 @@ public class ProductResponse implements Serializable {
     private BigDecimal rating;
     private LocalDateTime createdAt;
     
+    // ===== LIVE STREAMING FIELDS =====
+    private Boolean isLive;
+    private BigDecimal livePrice;
+    private LocalDateTime liveStartTime;
+    private LocalDateTime liveEndTime;
+    private Integer viewerCount;
+    
+    // ===== SEARCH FIELDS =====
+    private String productCondition;
+    private String brand;
+    private String model;
+    private String color;
+    private Double weight;
+    private String dimensions;
+    private Boolean isAuction;
+    private LocalDateTime auctionEndTime;
+    private BigDecimal startingBid;
+    private BigDecimal currentBid;
+    
     public ProductResponse() {}
     
-    public ProductResponse(Long id, String name, String slug, String description, String shortDescription,
-                           BigDecimal price, BigDecimal compareAtPrice, Integer quantity, String sku,
-                           Long categoryId, String categoryName, Long sellerId, String storeName,
-                           String images, String specifications, String status, Integer viewsCount,
-                           Integer salesCount, BigDecimal rating, LocalDateTime createdAt) {
-        this.id = id;
-        this.name = name;
-        this.slug = slug;
-        this.description = description;
-        this.shortDescription = shortDescription;
-        this.price = price;
-        this.compareAtPrice = compareAtPrice;
-        this.quantity = quantity;
-        this.sku = sku;
-        this.categoryId = categoryId;
-        this.categoryName = categoryName;
-        this.sellerId = sellerId;
-        this.storeName = storeName;
-        this.images = images;
-        this.specifications = specifications;
-        this.status = status;
-        this.viewsCount = viewsCount;
-        this.salesCount = salesCount;
-        this.rating = rating;
-        this.createdAt = createdAt;
-    }
-    
-    // Getters and Setters
+    // ===== BASIC GETTERS AND SETTERS =====
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     
@@ -118,4 +111,51 @@ public class ProductResponse implements Serializable {
     
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    
+    // ===== LIVE STREAMING GETTERS AND SETTERS =====
+    public Boolean getIsLive() { return isLive; }
+    public void setIsLive(Boolean isLive) { this.isLive = isLive; }
+    
+    public BigDecimal getLivePrice() { return livePrice; }
+    public void setLivePrice(BigDecimal livePrice) { this.livePrice = livePrice; }
+    
+    public LocalDateTime getLiveStartTime() { return liveStartTime; }
+    public void setLiveStartTime(LocalDateTime liveStartTime) { this.liveStartTime = liveStartTime; }
+    
+    public LocalDateTime getLiveEndTime() { return liveEndTime; }
+    public void setLiveEndTime(LocalDateTime liveEndTime) { this.liveEndTime = liveEndTime; }
+    
+    public Integer getViewerCount() { return viewerCount; }
+    public void setViewerCount(Integer viewerCount) { this.viewerCount = viewerCount; }
+    
+    // ===== SEARCH FIELDS GETTERS AND SETTERS =====
+    public String getProductCondition() { return productCondition; }
+    public void setProductCondition(String productCondition) { this.productCondition = productCondition; }
+    
+    public String getBrand() { return brand; }
+    public void setBrand(String brand) { this.brand = brand; }
+    
+    public String getModel() { return model; }
+    public void setModel(String model) { this.model = model; }
+    
+    public String getColor() { return color; }
+    public void setColor(String color) { this.color = color; }
+    
+    public Double getWeight() { return weight; }
+    public void setWeight(Double weight) { this.weight = weight; }
+    
+    public String getDimensions() { return dimensions; }
+    public void setDimensions(String dimensions) { this.dimensions = dimensions; }
+    
+    public Boolean getIsAuction() { return isAuction; }
+    public void setIsAuction(Boolean isAuction) { this.isAuction = isAuction; }
+    
+    public LocalDateTime getAuctionEndTime() { return auctionEndTime; }
+    public void setAuctionEndTime(LocalDateTime auctionEndTime) { this.auctionEndTime = auctionEndTime; }
+    
+    public BigDecimal getStartingBid() { return startingBid; }
+    public void setStartingBid(BigDecimal startingBid) { this.startingBid = startingBid; }
+    
+    public BigDecimal getCurrentBid() { return currentBid; }
+    public void setCurrentBid(BigDecimal currentBid) { this.currentBid = currentBid; }
 }

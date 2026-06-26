@@ -43,5 +43,190 @@
     "name": "cloudflare.r2.public-url",
     "type": "java.lang.String",
     "description": "A description for 'cloudflare.r2.public-url'"
+  },
+  {
+    "name": "walmart.seller.id",
+    "type": "java.lang.String",
+    "description": "A description for 'walmart.seller.id'"
+  },
+  {
+    "name": "ebay.refresh.token",
+    "type": "java.lang.String",
+    "description": "A description for 'ebay.refresh.token'"
+  },
+  {
+    "name": "ebay.client.secret",
+    "type": "java.lang.String",
+    "description": "A description for 'ebay.client.secret'"
+  },
+  {
+    "name": "ebay.client.id",
+    "type": "java.lang.String",
+    "description": "A description for 'ebay.client.id'"
+  },
+  {
+    "name": "walmart.client.secret",
+    "type": "java.lang.String",
+    "description": "A description for 'walmart.client.secret'"
+  },
+  {
+    "name": "walmart.client.id",
+    "type": "java.lang.String",
+    "description": "A description for 'walmart.client.id'"
+  },
+  {
+    "name": "amazon.refresh.token",
+    "type": "java.lang.String",
+    "description": "A description for 'amazon.refresh.token'"
+  },
+  {
+    "name": "amazon.seller.id",
+    "type": "java.lang.String",
+    "description": "A description for 'amazon.seller.id'"
+  },
+  {
+    "name": "amazon.marketplace.id",
+    "type": "java.lang.String",
+    "description": "A description for 'amazon.marketplace.id'"
+  },
+  {
+    "name": "amazon.client.secret",
+    "type": "java.lang.String",
+    "description": "A description for 'amazon.client.secret'"
+  },
+  {
+    "name": "amazon.client.id",
+    "type": "java.lang.String",
+    "description": "A description for 'amazon.client.id'"
+  },
+  {
+    "name": "stripe.connect.redirect.uri",
+    "type": "java.lang.String",
+    "description": "A description for 'stripe.connect.redirect.uri'"
+  },
+  {
+    "name": "stripe.connect.client.id",
+    "type": "java.lang.String",
+    "description": "A description for 'stripe.connect.client.id'"
+  },
+  {
+    "name": "tiktok.shop.id",
+    "type": "java.lang.String",
+    "description": "A description for 'tiktok.shop.id'"
+  },
+  {
+    "name": "tiktok.access.token",
+    "type": "java.lang.String",
+    "description": "A description for 'tiktok.access.token'"
+  },
+  {
+    "name": "tiktok.api.url",
+    "type": "java.lang.String",
+    "description": "A description for 'tiktok.api.url'"
+  },
+  {
+    "name": "tiktok.client.secret",
+    "type": "java.lang.String",
+    "description": "A description for 'tiktok.client.secret'"
+  },
+  {
+    "name": "tiktok.client.id",
+    "type": "java.lang.String",
+    "description": "A description for 'tiktok.client.id'"
+  },
+  {
+    "name": "etsy.api.url",
+    "type": "java.lang.String",
+    "description": "A description for 'etsy.api.url'"
+  },
+  {
+    "name": "etsy.shop.id",
+    "type": "java.lang.String",
+    "description": "A description for 'etsy.shop.id'"
+  },
+  {
+    "name": "etsy.access.token",
+    "type": "java.lang.String",
+    "description": "A description for 'etsy.access.token'"
+  },
+  {
+    "name": "etsy.client.secret",
+    "type": "java.lang.String",
+    "description": "A description for 'etsy.client.secret'"
+  },
+  {
+    "name": "google.api.url",
+    "type": "java.lang.String",
+    "description": "A description for 'google.api.url'"
+  },
+  {
+    "name": "google.merchant.id",
+    "type": "java.lang.String",
+    "description": "A description for 'google.merchant.id'"
+  },
+  {
+    "name": "etsy.client.id",
+    "type": "java.lang.String",
+    "description": "A description for 'etsy.client.id'"
+  },
+  {
+    "name": "google.api.key",
+    "type": "java.lang.String",
+    "description": "A description for 'google.api.key'"
+  },
+  {
+    "name": "google.client.id",
+    "type": "java.lang.String",
+    "description": "A description for 'google.client.id'"
+  },
+  {
+    "name": "backmarket.api.key",
+    "type": "java.lang.String",
+    "description": "A description for 'backmarket.api.key'"
+  },
+  {
+    "name": "backmarket.seller.id",
+    "type": "java.lang.String",
+    "description": "A description for 'backmarket.seller.id'"
+  },
+  {
+    "name": "backmarket.api.url",
+    "type": "java.lang.String",
+    "description": "A description for 'backmarket.api.url'"
+  },
+  {
+    "name": "temu.seller.id",
+    "type": "java.lang.String",
+    "description": "A description for 'temu.seller.id'"
+  },
+  {
+    "name": "shopify.api.secret",
+    "type": "java.lang.String",
+    "description": "A description for 'shopify.api.secret'"
+  },
+  {
+    "name": "shopify.store.url",
+    "type": "java.lang.String",
+    "description": "A description for 'shopify.store.url'"
+  },
+  {
+    "name": "shopify.api.url",
+    "type": "java.lang.String",
+    "description": "A description for 'shopify.api.url'"
+  },
+  {
+    "name": "shopify.api.key",
+    "type": "java.lang.String",
+    "description": "A description for 'shopify.api.key'"
+  },
+  {
+    "name": "temu.api.key",
+    "type": "java.lang.String",
+    "description": "A description for 'temu.api.key'"
+  },
+  {
+    "name": "temu.api.url",
+    "type": "java.lang.String",
+    "description": "A description for 'temu.api.url'"
   }
 ]}

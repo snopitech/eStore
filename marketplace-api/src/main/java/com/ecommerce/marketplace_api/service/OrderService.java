@@ -25,18 +25,15 @@ public class OrderService {
     private static final BigDecimal TAX_RATE = new BigDecimal("0.10");
     
     private final OrderRepository orderRepository;
-    
     private final OrderItemRepository orderItemRepository;
-    
     private final CartItemRepository cartItemRepository;
-    
     private final ProductRepository productRepository;
-    
     private final UserRepository userRepository;
-    
     private final SellerProfileRepository sellerProfileRepository;
 
-    OrderService(OrderRepository orderRepository, OrderItemRepository orderItemRepository, CartItemRepository cartItemRepository, ProductRepository productRepository, UserRepository userRepository, SellerProfileRepository sellerProfileRepository) {
+    OrderService(OrderRepository orderRepository, OrderItemRepository orderItemRepository, 
+                 CartItemRepository cartItemRepository, ProductRepository productRepository, 
+                 UserRepository userRepository, SellerProfileRepository sellerProfileRepository) {
         this.orderRepository = orderRepository;
         this.orderItemRepository = orderItemRepository;
         this.cartItemRepository = cartItemRepository;
@@ -206,6 +203,34 @@ public class OrderService {
         
         Order saved = orderRepository.save(order);
         return convertToResponse(saved);
+    }
+
+    // ===== CHECK IF USER PURCHASED PRODUCT =====
+    public boolean hasUserPurchasedProduct(Long userId, Long productId) {
+        // Get all orders for this user
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        
+        List<Order> orders = orderRepository.findByBuyer(user);
+        
+        for (Order order : orders) {
+            // Only check completed orders
+            if (order.getStatus() == OrderStatus.PAID || 
+                order.getStatus() == OrderStatus.PROCESSING ||
+                order.getStatus() == OrderStatus.SHIPPED || 
+                order.getStatus() == OrderStatus.DELIVERED) {
+                
+                // Check if this order contains the product
+                List<OrderItem> orderItems = orderItemRepository.findByOrder(order);
+                boolean productFound = orderItems.stream()
+                    .anyMatch(item -> item.getProduct() != null && 
+                                     item.getProduct().getId().equals(productId));
+                if (productFound) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
     
     private String generateOrderNumber() {

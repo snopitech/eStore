@@ -70,9 +70,38 @@ public class Order {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
     
+    // ===== NEW: MULTI-CHANNEL / MARKETPLACE FIELDS =====
+    
+    @Column(name = "marketplace")
+    private String marketplace; // 'ESTORE', 'AMAZON', 'WALMART', 'EBAY'
+    
+    @Column(name = "marketplace_order_id")
+    private String marketplaceOrderId;
+    
+    @Column(name = "marketplace_fee")
+    private BigDecimal marketplaceFee = BigDecimal.ZERO;
+    
+    @Column(name = "seller_commission")
+    private BigDecimal sellerCommission = BigDecimal.ZERO;
+    
+    @Column(name = "seller_payout_amount")
+    private BigDecimal sellerPayoutAmount;
+    
+    @Column(name = "payout_status")
+    private String payoutStatus = "PENDING"; // PENDING, PROCESSED, COMPLETED
+    
+    @Column(name = "payout_date")
+    private LocalDateTime payoutDate;
+    
+    @Column(name = "is_synced")
+    private Boolean isSynced = false;
+    
+    @Column(name = "synced_at")
+    private LocalDateTime syncedAt;
+    
     public Order() {}
     
-    // Getters
+    // ===== EXISTING GETTERS =====
     public Long getId() { return id; }
     public String getOrderNumber() { return orderNumber; }
     public User getBuyer() { return buyer; }
@@ -94,7 +123,7 @@ public class Order {
     public LocalDateTime getCreatedAt() { return createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     
-    // Setters
+    // ===== EXISTING SETTERS =====
     public void setId(Long id) { this.id = id; }
     public void setOrderNumber(String orderNumber) { this.orderNumber = orderNumber; }
     public void setBuyer(User buyer) { this.buyer = buyer; }
@@ -116,10 +145,54 @@ public class Order {
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
     
+    // ===== NEW: MULTI-CHANNEL GETTERS AND SETTERS =====
+    
+    public String getMarketplace() { return marketplace; }
+    public void setMarketplace(String marketplace) { this.marketplace = marketplace; }
+    
+    public String getMarketplaceOrderId() { return marketplaceOrderId; }
+    public void setMarketplaceOrderId(String marketplaceOrderId) { this.marketplaceOrderId = marketplaceOrderId; }
+    
+    public BigDecimal getMarketplaceFee() { return marketplaceFee; }
+    public void setMarketplaceFee(BigDecimal marketplaceFee) { this.marketplaceFee = marketplaceFee; }
+    
+    public BigDecimal getSellerCommission() { return sellerCommission; }
+    public void setSellerCommission(BigDecimal sellerCommission) { this.sellerCommission = sellerCommission; }
+    
+    public BigDecimal getSellerPayoutAmount() { return sellerPayoutAmount; }
+    public void setSellerPayoutAmount(BigDecimal sellerPayoutAmount) { this.sellerPayoutAmount = sellerPayoutAmount; }
+    
+    public String getPayoutStatus() { return payoutStatus; }
+    public void setPayoutStatus(String payoutStatus) { this.payoutStatus = payoutStatus; }
+    
+    public LocalDateTime getPayoutDate() { return payoutDate; }
+    public void setPayoutDate(LocalDateTime payoutDate) { this.payoutDate = payoutDate; }
+    
+    public Boolean getIsSynced() { return isSynced; }
+    public void setIsSynced(Boolean isSynced) { this.isSynced = isSynced; }
+    
+    public LocalDateTime getSyncedAt() { return syncedAt; }
+    public void setSyncedAt(LocalDateTime syncedAt) { this.syncedAt = syncedAt; }
+    
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
+        if (marketplace == null) {
+            marketplace = "ESTORE";
+        }
+        if (payoutStatus == null) {
+            payoutStatus = "PENDING";
+        }
+        if (isSynced == null) {
+            isSynced = false;
+        }
+        if (marketplaceFee == null) {
+            marketplaceFee = BigDecimal.ZERO;
+        }
+        if (sellerCommission == null) {
+            sellerCommission = BigDecimal.ZERO;
+        }
     }
     
     @PreUpdate

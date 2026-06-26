@@ -5,22 +5,22 @@ import com.ecommerce.marketplace_api.service.WishlistService;
 import com.ecommerce.marketplace_api.service.UserService;
 import com.ecommerce.marketplace_api.model.User;
 import com.ecommerce.marketplace_api.utils.JwtUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @SuppressWarnings("unused")
 @RestController
 @RequestMapping("/api/wishlist")
+@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:5174", "http://localhost:3000"})
 public class WishlistController {
     
     private final WishlistService wishlistService;
-    
     private final UserService userService;
-    
     private final JwtUtil jwtUtil;
 
     WishlistController(WishlistService wishlistService, UserService userService, JwtUtil jwtUtil) {
@@ -49,13 +49,20 @@ public class WishlistController {
             @PathVariable Long productId) {
         Long userId = getUserIdFromToken(authHeader);
         if (userId == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Please login");
+            Map<String, String> error = new HashMap<>();
+            error.put("message", "Please login");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
         }
         try {
             Wishlist wishlist = wishlistService.addToWishlist(userId, productId);
-            return ResponseEntity.status(HttpStatus.CREATED).body(wishlist);
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Added to wishlist");
+            response.put("wishlist", wishlist);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            Map<String, String> error = new HashMap<>();
+            error.put("message", e.getMessage());
+            return ResponseEntity.badRequest().body(error);
         }
     }
     
@@ -64,13 +71,17 @@ public class WishlistController {
             @RequestHeader(value = "Authorization", required = false) String authHeader) {
         Long userId = getUserIdFromToken(authHeader);
         if (userId == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Please login");
+            Map<String, String> error = new HashMap<>();
+            error.put("message", "Please login");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
         }
         try {
             List<Wishlist> wishlist = wishlistService.getUserWishlist(userId);
             return ResponseEntity.ok(wishlist);
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            Map<String, String> error = new HashMap<>();
+            error.put("message", e.getMessage());
+            return ResponseEntity.badRequest().body(error);
         }
     }
     
@@ -80,13 +91,19 @@ public class WishlistController {
             @PathVariable Long productId) {
         Long userId = getUserIdFromToken(authHeader);
         if (userId == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Please login");
+            Map<String, String> error = new HashMap<>();
+            error.put("message", "Please login");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
         }
         try {
             wishlistService.removeFromWishlist(userId, productId);
-            return ResponseEntity.ok("Removed from wishlist");
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Removed from wishlist");
+            return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            Map<String, String> error = new HashMap<>();
+            error.put("message", e.getMessage());
+            return ResponseEntity.badRequest().body(error);
         }
     }
     
@@ -96,13 +113,19 @@ public class WishlistController {
             @PathVariable Long productId) {
         Long userId = getUserIdFromToken(authHeader);
         if (userId == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Please login");
+            Map<String, Boolean> response = new HashMap<>();
+            response.put("inWishlist", false);
+            return ResponseEntity.ok(response);
         }
         try {
             boolean isInWishlist = wishlistService.isInWishlist(userId, productId);
-            return ResponseEntity.ok(isInWishlist);
+            Map<String, Boolean> response = new HashMap<>();
+            response.put("inWishlist", isInWishlist);
+            return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            Map<String, Boolean> response = new HashMap<>();
+            response.put("inWishlist", false);
+            return ResponseEntity.ok(response);
         }
     }
 }

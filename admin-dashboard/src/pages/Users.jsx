@@ -32,32 +32,32 @@ function Users() {
   };
 
   if (loading) {
-    return <div className="text-center py-12">Loading users...</div>;
+    return <div className="text-center py-12 text-sm sm:text-base">Loading users...</div>;
   }
 
   return (
     <div>
-      <h2 className="text-2xl font-bold mb-6">Users Management</h2>
+      <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Users Management</h2>
       <div className="bg-white rounded-lg shadow overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50 border-b">
+        <div className="admin-table-wrap">
+          <table className="admin-table">
+            <thead>
               <tr>
-                <th className="text-left py-3 px-4">ID</th>
-                <th className="text-left py-3 px-4">Email</th>
-                <th className="text-left py-3 px-4">Name</th>
-                <th className="text-left py-3 px-4">Role</th>
-                <th className="text-left py-3 px-4">Actions</th>
+                <th>ID</th>
+                <th>Email</th>
+                <th>Name</th>
+                <th>Role</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
               {users.map((user) => (
-                <tr key={user.id} className="border-b hover:bg-gray-50">
-                  <td className="py-3 px-4">{user.id}</td>
-                  <td className="py-3 px-4">{user.email}</td>
-                  <td className="py-3 px-4">{user.firstName || ''} {user.lastName || ''}</td>
-                  <td className="py-3 px-4">
-                    <span className={`px-2 py-1 rounded text-xs ${
+                <tr key={user.id}>
+                  <td className="text-xs sm:text-sm">{user.id}</td>
+                  <td className="text-xs sm:text-sm">{user.email}</td>
+                  <td className="text-xs sm:text-sm">{user.firstName || ''} {user.lastName || ''}</td>
+                  <td>
+                    <span className={`px-2 py-0.5 rounded text-[8px] sm:text-xs ${
                       user.userType === 'ADMIN' ? 'bg-red-100 text-red-800' :
                       user.userType === 'SELLER' ? 'bg-blue-100 text-blue-800' :
                       'bg-green-100 text-green-800'
@@ -65,19 +65,18 @@ function Users() {
                       {user.userType}
                     </span>
                   </td>
-                  <td className="py-3 px-4">
-                    {user.userType !== 'ADMIN' && (
+                  <td>
+                    {user.userType !== 'ADMIN' ? (
                       <select
                         onChange={(e) => updateRole(user.id, e.target.value)}
-                        className="border rounded px-2 py-1 text-sm"
+                        className="border rounded px-1 sm:px-2 py-1 text-[10px] sm:text-sm min-h-9 sm:min-h-11"
                         defaultValue={user.userType}
                       >
                         <option value="BUYER">Buyer</option>
                         <option value="SELLER">Seller</option>
                       </select>
-                    )}
-                    {user.userType === 'ADMIN' && (
-                      <span className="text-sm text-gray-500">(Admin)</span>
+                    ) : (
+                      <span className="text-[10px] sm:text-sm text-gray-500">(Admin)</span>
                     )}
                   </td>
                 </tr>

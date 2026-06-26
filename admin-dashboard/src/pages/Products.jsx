@@ -35,34 +35,34 @@ function Products() {
   };
 
   if (loading) {
-    return <div className="text-center py-12">Loading products...</div>;
+    return <div className="text-center py-12 text-sm sm:text-base">Loading products...</div>;
   }
 
   return (
     <div>
-      <h2 className="text-2xl font-bold mb-6">Products Management</h2>
+      <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Products Management</h2>
       <div className="bg-white rounded-lg shadow overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50 border-b">
+        <div className="admin-table-wrap">
+          <table className="admin-table">
+            <thead>
               <tr>
-                <th className="text-left py-3 px-4">ID</th>
-                <th className="text-left py-3 px-4">Name</th>
-                <th className="text-left py-3 px-4">Price</th>
-                <th className="text-left py-3 px-4">Seller</th>
-                <th className="text-left py-3 px-4">Status</th>
-                <th className="text-left py-3 px-4">Actions</th>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Price</th>
+                <th>Seller</th>
+                <th>Status</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
               {products.map((product) => (
-                <tr key={product.id} className="border-b hover:bg-gray-50">
-                  <td className="py-3 px-4">{product.id}</td>
-                  <td className="py-3 px-4 font-medium">{product.name}</td>
-                  <td className="py-3 px-4">${product.price}</td>
-                  <td className="py-3 px-4">{product.seller?.storeName || 'N/A'}</td>
-                  <td className="py-3 px-4">
-                    <span className={`px-2 py-1 rounded text-xs ${
+                <tr key={product.id}>
+                  <td className="text-xs sm:text-sm">{product.id}</td>
+                  <td className="font-medium text-xs sm:text-sm">{product.name}</td>
+                  <td className="text-xs sm:text-sm">${product.price}</td>
+                  <td className="text-xs sm:text-sm">{product.seller?.storeName || 'N/A'}</td>
+                  <td>
+                    <span className={`px-2 py-0.5 sm:py-1 rounded text-[8px] sm:text-xs ${
                       product.status === 'ACTIVE' ? 'bg-green-100 text-green-800' :
                       product.status === 'DRAFT' ? 'bg-yellow-100 text-yellow-800' :
                       'bg-gray-100 text-gray-800'
@@ -70,10 +70,10 @@ function Products() {
                       {product.status || 'DRAFT'}
                     </span>
                   </td>
-                  <td className="py-3 px-4">
+                  <td>
                     <button
                       onClick={() => deleteProduct(product.id)}
-                      className="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700"
+                      className="bg-red-600 text-white px-2 sm:px-3 py-1 rounded text-[10px] sm:text-sm hover:bg-red-700 min-h-8"
                     >
                       Delete
                     </button>

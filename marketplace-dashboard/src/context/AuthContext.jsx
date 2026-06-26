@@ -17,13 +17,18 @@ export function AuthProvider({ children }) {
       const storedUser = localStorage.getItem('user');
       if (storedUser) {
         setUser(JSON.parse(storedUser));
+        console.log('User loaded from localStorage:', JSON.parse(storedUser));
       }
     }
     setLoading(false);
   }, [token]);
 
+  // Regular login with email/password
   const login = async (email, password) => {
     try {
+      console.log('=== LOGIN ATTEMPT ===');
+      console.log('Email:', email);
+      
       const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -31,17 +36,53 @@ export function AuthProvider({ children }) {
       });
       const data = await response.json();
       
+      console.log('Login response:', data);
+      
       if (data.token) {
+        // Store user with firstName and lastName
+        const userData = {
+          email: data.email,
+          userType: data.userType,
+          firstName: data.firstName || '',
+          lastName: data.lastName || ''
+        };
+        
+        console.log('Storing user data:', userData);
+        
         setToken(data.token);
-        setUser({ email: data.email, userType: data.userType });
+        setUser(userData);
         localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify({ email: data.email, userType: data.userType }));
+        localStorage.setItem('user', JSON.stringify(userData));
         return { success: true };
       }
       return { success: false, error: 'Invalid credentials' };
     } catch (error) {
+      console.error('Login error:', error);
       return { success: false, error: error.message };
     }
+  };
+
+  // Google login (called from Google button)
+  const googleLogin = async (token, userData) => {
+    console.log('=== GOOGLE LOGIN CALLED ===');
+    console.log('Token:', token);
+    console.log('User Data:', userData);
+    
+    // Store user with firstName and lastName
+    const userInfo = {
+      email: userData.email || '',
+      userType: userData.userType || 'BUYER',
+      firstName: userData.firstName || '',
+      lastName: userData.lastName || ''
+    };
+    
+    console.log('Storing Google user:', userInfo);
+    
+    setToken(token);
+    setUser(userInfo);
+    localStorage.setItem('token', token);
+    localStorage.setItem('user', JSON.stringify(userInfo));
+    return { success: true };
   };
 
   const register = async (userData) => {
@@ -67,10 +108,22 @@ export function AuthProvider({ children }) {
     setUser(null);
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    console.log('User logged out');
+  };
+
+  const value = {
+    user,
+    token,
+    login,
+    googleLogin,
+    register,
+    logout,
+    loading,
+    isAuthenticated: !!user
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, register, logout, loading }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );

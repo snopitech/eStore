@@ -16,9 +16,7 @@ import java.util.List;
 public class WishlistService {
     
     private final WishlistRepository wishlistRepository;
-    
     private final UserRepository userRepository;
-    
     private final ProductRepository productRepository;
 
     WishlistService(WishlistRepository wishlistRepository, UserRepository userRepository, ProductRepository productRepository) {
@@ -35,7 +33,6 @@ public class WishlistService {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
         
-        // Check if already in wishlist
         if (wishlistRepository.existsByUserAndProduct(user, product)) {
             throw new RuntimeException("Product already in wishlist");
         }

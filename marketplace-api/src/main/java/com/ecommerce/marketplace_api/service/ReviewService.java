@@ -4,11 +4,11 @@ import com.ecommerce.marketplace_api.dto.ReviewRequest;
 import com.ecommerce.marketplace_api.dto.ReviewResponse;
 import com.ecommerce.marketplace_api.model.*;
 import com.ecommerce.marketplace_api.repository.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.ecommerce.marketplace_api.model.ReviewStatus;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,18 +18,24 @@ import java.util.stream.Collectors;
 public class ReviewService {
     
     private final ReviewRepository reviewRepository;
-    
     private final ProductRepository productRepository;
-    
     private final UserRepository userRepository;
-    
     private final OrderItemRepository orderItemRepository;
+    private final SellerProfileRepository sellerProfileRepository;
+    private final OrderRepository orderRepository;
 
-    ReviewService(ReviewRepository reviewRepository, ProductRepository productRepository, UserRepository userRepository, OrderItemRepository orderItemRepository) {
+    ReviewService(ReviewRepository reviewRepository, 
+                  ProductRepository productRepository, 
+                  UserRepository userRepository, 
+                  OrderItemRepository orderItemRepository,
+                  SellerProfileRepository sellerProfileRepository,
+                  OrderRepository orderRepository) {
         this.reviewRepository = reviewRepository;
         this.productRepository = productRepository;
         this.userRepository = userRepository;
         this.orderItemRepository = orderItemRepository;
+        this.sellerProfileRepository = sellerProfileRepository;
+        this.orderRepository = orderRepository;
     }
     
     @Transactional
@@ -40,30 +46,66 @@ public class ReviewService {
         Product product = productRepository.findById(request.getProductId())
                 .orElseThrow(() -> new RuntimeException("Product not found"));
         
-        OrderItem orderItem = orderItemRepository.findById(request.getOrderItemId())
-                .orElseThrow(() -> new RuntimeException("Order item not found"));
+        boolean isVerifiedPurchase = isVerifiedBuyer(userId, product);
         
-        // Check if user already reviewed this product from this order
-        if (reviewRepository.existsByOrderItemId(request.getOrderItemId())) {
-            throw new RuntimeException("You have already reviewed this product from this order");
+        OrderItem orderItem = getOrCreateOrderItem(product, request.getOrderItemId());
+        
+        SellerProfile seller = product.getSeller();
+        if (seller == null) {
+            throw new RuntimeException("Product has no seller");
         }
         
         Review review = new Review();
         review.setProduct(product);
+        review.setSellerId(seller.getId());
         review.setReviewer(reviewer);
         review.setOrderItem(orderItem);
         review.setRating(request.getRating());
         review.setTitle(request.getTitle());
         review.setComment(request.getComment());
         review.setImages(request.getImages());
-        review.setStatus(ReviewStatus.APPROVED);
+        review.setIsVerifiedPurchase(isVerifiedPurchase);
+        review.setStatus(ReviewStatus.PENDING);
+        review.setCreatedAt(LocalDateTime.now());
         
         Review saved = reviewRepository.save(review);
         
-        // Update product rating
-        updateProductRating(product);
-        
         return convertToResponse(saved);
+    }
+    
+    private boolean isVerifiedBuyer(Long userId, Product product) {
+        List<OrderItem> orderItems = orderItemRepository.findByProduct(product);
+        for (OrderItem item : orderItems) {
+            Order order = item.getOrder();
+            if (order != null && order.getBuyer() != null) {
+                if (order.getBuyer().getId().equals(userId)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    
+    private OrderItem getOrCreateOrderItem(Product product, Long orderItemId) {
+        if (orderItemId != null && orderItemId > 0) {
+            try {
+                return orderItemRepository.findById(orderItemId).orElse(null);
+            } catch (Exception e) {
+                // Fall through
+            }
+        }
+        
+        OrderItem newOrderItem = new OrderItem();
+        newOrderItem.setOrderId(1L);
+        newOrderItem.setProductId(product.getId());
+        newOrderItem.setProductName(product.getName());
+        newOrderItem.setQuantity(1);
+        newOrderItem.setUnitPrice(product.getPrice());
+        newOrderItem.setTotalPrice(product.getPrice());
+        newOrderItem.setStatus(OrderItemStatus.CONFIRMED);
+        newOrderItem.setCreatedAt(LocalDateTime.now());
+        newOrderItem.setUpdatedAt(LocalDateTime.now());
+        return orderItemRepository.save(newOrderItem);
     }
     
     public List<ReviewResponse> getProductReviews(Long productId) {
@@ -79,67 +121,92 @@ public class ReviewService {
         User reviewer = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         
-        return reviewRepository.findAll().stream()
-                .filter(r -> r.getReviewer().getId().equals(userId))
+        return reviewRepository.findByReviewer(reviewer).stream()
+                .map(this::convertToResponse)
+                .collect(Collectors.toList());
+    }
+    
+    public List<ReviewResponse> getPendingReviewsForSeller(Long userId) {
+        User seller = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Seller not found"));
+        
+        SellerProfile sellerProfile = sellerProfileRepository.findByUser(seller)
+                .orElseThrow(() -> new RuntimeException("Seller profile not found"));
+        
+        List<Review> pendingReviews = reviewRepository.findReviewsBySellerAndStatus(sellerProfile, ReviewStatus.PENDING);
+        
+        return pendingReviews.stream()
                 .map(this::convertToResponse)
                 .collect(Collectors.toList());
     }
     
     @Transactional
-    public ReviewResponse updateReview(Long userId, Long reviewId, ReviewRequest request) {
+    public ReviewResponse approveReview(Long reviewId) {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new RuntimeException("Review not found"));
         
-        if (!review.getReviewer().getId().equals(userId)) {
-            throw new RuntimeException("You don't own this review");
-        }
-        
-        review.setRating(request.getRating());
-        review.setTitle(request.getTitle());
-        review.setComment(request.getComment());
-        review.setImages(request.getImages());
-        
+        review.setStatus(ReviewStatus.APPROVED);
         Review saved = reviewRepository.save(review);
         
-        // Update product rating
         updateProductRating(review.getProduct());
+        updateSellerRating(review.getProduct().getSeller());
         
         return convertToResponse(saved);
     }
     
     @Transactional
-    public void deleteReview(Long userId, Long reviewId) {
+    public ReviewResponse rejectReview(Long reviewId) {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new RuntimeException("Review not found"));
         
-        if (!review.getReviewer().getId().equals(userId)) {
-            throw new RuntimeException("You don't own this review");
-        }
+        review.setStatus(ReviewStatus.REJECTED);
+        Review saved = reviewRepository.save(review);
         
-        Product product = review.getProduct();
-        reviewRepository.delete(review);
-        
-        // Update product rating
-        updateProductRating(product);
+        return convertToResponse(saved);
     }
     
     private void updateProductRating(Product product) {
-        List<Review> reviews = reviewRepository.findByProduct(product);
+        List<Review> reviews = reviewRepository.findByProductAndStatus(product, ReviewStatus.APPROVED);
+        
         if (reviews.isEmpty()) {
             product.setRating(BigDecimal.ZERO);
             product.setReviewsCount(0);
         } else {
             double avg = reviews.stream()
-                    .filter(r -> r.getStatus() == ReviewStatus.APPROVED)
                     .mapToInt(Review::getRating)
                     .average()
                     .orElse(0.0);
-            product.setRating(BigDecimal.valueOf(avg));
-            product.setReviewsCount((int) reviews.stream()
-                    .filter(r -> r.getStatus() == ReviewStatus.APPROVED)
-                    .count());
+            product.setRating(BigDecimal.valueOf(avg).setScale(2, RoundingMode.HALF_UP));
+            product.setReviewsCount(reviews.size());
         }
         productRepository.save(product);
+    }
+    
+    private void updateSellerRating(SellerProfile seller) {
+        if (seller == null) return;
+        
+        List<Review> reviews = reviewRepository.findApprovedReviewsBySeller(seller);
+        
+        if (reviews.isEmpty()) {
+            seller.setAverageRating(BigDecimal.ZERO);
+            seller.setTotalReviews(0);
+            seller.setPositiveReviews(0);
+        } else {
+            int total = reviews.size();
+            long positive = reviews.stream()
+                    .filter(r -> r.getRating() >= 4)
+                    .count();
+            
+            double avg = reviews.stream()
+                    .mapToInt(Review::getRating)
+                    .average()
+                    .orElse(0.0);
+            
+            seller.setAverageRating(BigDecimal.valueOf(avg).setScale(2, RoundingMode.HALF_UP));
+            seller.setTotalReviews(total);
+            seller.setPositiveReviews((int) positive);
+        }
+        sellerProfileRepository.save(seller);
     }
     
     private ReviewResponse convertToResponse(Review review) {

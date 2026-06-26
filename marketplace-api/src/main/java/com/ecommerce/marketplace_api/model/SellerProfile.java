@@ -51,9 +51,49 @@ public class SellerProfile {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
     
+    // ===== PAYOUT FIELDS =====
+    @Column(name = "payout_method")
+    private String payoutMethod = "BANK";
+    
+    @Column(name = "payout_account_name")
+    private String payoutAccountName;
+    
+    @Column(name = "payout_account_number")
+    private String payoutAccountNumber;
+    
+    @Column(name = "payout_routing_number")
+    private String payoutRoutingNumber;
+    
+    @Column(name = "payout_paypal_email")
+    private String payoutPaypalEmail;
+    
+    @Column(name = "payout_email")
+    private String payoutEmail;
+    
+    // ===== STRIPE CONNECT FIELDS =====
+    @Column(name = "stripe_connect_account_id")
+    private String stripeConnectAccountId;
+    
+    @Column(name = "stripe_connect_status")
+    private String stripeConnectStatus = "PENDING";
+    
+    @Column(name = "stripe_connect_verified")
+    private Boolean stripeConnectVerified = false;
+    
+    // ===== RATING FIELDS =====
+    @Column(name = "total_reviews")
+    private Integer totalReviews = 0;
+    
+    @Column(name = "positive_reviews")
+    private Integer positiveReviews = 0;
+    
+    @Column(name = "average_rating")
+    private BigDecimal averageRating = BigDecimal.ZERO;
+    
     public SellerProfile() {}
     
-    // Getters and Setters
+    // ===== BASIC GETTERS AND SETTERS =====
+    
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     
@@ -96,10 +136,130 @@ public class SellerProfile {
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
     
+    // ===== PAYOUT GETTERS AND SETTERS =====
+    
+    public String getPayoutMethod() {
+        return payoutMethod;
+    }
+    
+    public void setPayoutMethod(String payoutMethod) {
+        this.payoutMethod = payoutMethod;
+    }
+    
+    public String getPayoutAccountName() {
+        return payoutAccountName;
+    }
+    
+    public void setPayoutAccountName(String payoutAccountName) {
+        this.payoutAccountName = payoutAccountName;
+    }
+    
+    public String getPayoutAccountNumber() {
+        return payoutAccountNumber;
+    }
+    
+    public void setPayoutAccountNumber(String payoutAccountNumber) {
+        this.payoutAccountNumber = payoutAccountNumber;
+    }
+    
+    public String getPayoutRoutingNumber() {
+        return payoutRoutingNumber;
+    }
+    
+    public void setPayoutRoutingNumber(String payoutRoutingNumber) {
+        this.payoutRoutingNumber = payoutRoutingNumber;
+    }
+    
+    public String getPayoutPaypalEmail() {
+        return payoutPaypalEmail;
+    }
+    
+    public void setPayoutPaypalEmail(String payoutPaypalEmail) {
+        this.payoutPaypalEmail = payoutPaypalEmail;
+    }
+    
+    public String getPayoutEmail() {
+        return payoutEmail;
+    }
+    
+    public void setPayoutEmail(String payoutEmail) {
+        this.payoutEmail = payoutEmail;
+    }
+    
+    // ===== STRIPE CONNECT GETTERS AND SETTERS =====
+    
+    public String getStripeConnectAccountId() {
+        return stripeConnectAccountId;
+    }
+    
+    public void setStripeConnectAccountId(String stripeConnectAccountId) {
+        this.stripeConnectAccountId = stripeConnectAccountId;
+    }
+    
+    public String getStripeConnectStatus() {
+        return stripeConnectStatus;
+    }
+    
+    public void setStripeConnectStatus(String stripeConnectStatus) {
+        this.stripeConnectStatus = stripeConnectStatus;
+    }
+    
+    public Boolean getStripeConnectVerified() {
+        return stripeConnectVerified;
+    }
+    
+    public void setStripeConnectVerified(Boolean stripeConnectVerified) {
+        this.stripeConnectVerified = stripeConnectVerified;
+    }
+    
+    // ===== RATING GETTERS AND SETTERS =====
+    
+    public Integer getTotalReviews() {
+        return totalReviews;
+    }
+    
+    public void setTotalReviews(Integer totalReviews) {
+        this.totalReviews = totalReviews;
+    }
+    
+    public Integer getPositiveReviews() {
+        return positiveReviews;
+    }
+    
+    public void setPositiveReviews(Integer positiveReviews) {
+        this.positiveReviews = positiveReviews;
+    }
+    
+    public BigDecimal getAverageRating() {
+        return averageRating;
+    }
+    
+    public void setAverageRating(BigDecimal averageRating) {
+        this.averageRating = averageRating;
+    }
+    
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
+        if (payoutMethod == null) {
+            payoutMethod = "BANK";
+        }
+        if (stripeConnectStatus == null) {
+            stripeConnectStatus = "PENDING";
+        }
+        if (stripeConnectVerified == null) {
+            stripeConnectVerified = false;
+        }
+        if (totalReviews == null) {
+            totalReviews = 0;
+        }
+        if (positiveReviews == null) {
+            positiveReviews = 0;
+        }
+        if (averageRating == null) {
+            averageRating = BigDecimal.ZERO;
+        }
     }
     
     @PreUpdate

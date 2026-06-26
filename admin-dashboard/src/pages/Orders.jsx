@@ -34,7 +34,7 @@ function Orders() {
   };
 
   if (loading) {
-    return <div className="text-center py-12">Loading orders...</div>;
+    return <div className="text-center py-12 text-sm sm:text-base">Loading orders...</div>;
   }
 
   const statusColors = {
@@ -49,38 +49,38 @@ function Orders() {
 
   return (
     <div>
-      <h2 className="text-2xl font-bold mb-6">Orders Management</h2>
+      <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Orders Management</h2>
       <div className="bg-white rounded-lg shadow overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50 border-b">
+        <div className="admin-table-wrap">
+          <table className="admin-table">
+            <thead>
               <tr>
-                <th className="text-left py-3 px-4">Order #</th>
-                <th className="text-left py-3 px-4">Buyer</th>
-                <th className="text-left py-3 px-4">Total</th>
-                <th className="text-left py-3 px-4">Status</th>
-                <th className="text-left py-3 px-4">Payment</th>
-                <th className="text-left py-3 px-4">Actions</th>
+                <th>Order #</th>
+                <th>Buyer</th>
+                <th>Total</th>
+                <th>Status</th>
+                <th>Payment</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
               {orders.map((order) => (
-                <tr key={order.id} className="border-b hover:bg-gray-50">
-                  <td className="py-3 px-4 font-medium">{order.orderNumber}</td>
-                  <td className="py-3 px-4">
-                    <div className="text-sm">
-                      <div>{order.buyerName || 'N/A'}</div>
-                      <div className="text-xs text-gray-500">{order.buyerEmail || 'N/A'}</div>
+                <tr key={order.id}>
+                  <td className="font-medium text-xs sm:text-sm">{order.orderNumber}</td>
+                  <td>
+                    <div className="text-[10px] sm:text-sm">
+                      <div className="font-medium">{order.buyerName || 'N/A'}</div>
+                      <div className="text-[10px] sm:text-xs text-gray-500">{order.buyerEmail || 'N/A'}</div>
                     </div>
                   </td>
-                  <td className="py-3 px-4 font-semibold">${order.totalAmount}</td>
-                  <td className="py-3 px-4">
-                    <span className={`px-2 py-1 rounded text-xs ${statusColors[order.status] || 'bg-gray-100'}`}>
+                  <td className="font-semibold text-xs sm:text-sm">${order.totalAmount}</td>
+                  <td>
+                    <span className={`px-2 py-0.5 sm:py-1 rounded text-[8px] sm:text-xs ${statusColors[order.status] || 'bg-gray-100'}`}>
                       {order.status || 'PENDING'}
                     </span>
                   </td>
-                  <td className="py-3 px-4">
-                    <span className={`px-2 py-1 rounded text-xs ${
+                  <td>
+                    <span className={`px-2 py-0.5 sm:py-1 rounded text-[8px] sm:text-xs ${
                       order.paymentStatus === 'COMPLETED' ? 'bg-green-100 text-green-800' :
                       order.paymentStatus === 'FAILED' ? 'bg-red-100 text-red-800' :
                       'bg-yellow-100 text-yellow-800'
@@ -88,10 +88,10 @@ function Orders() {
                       {order.paymentStatus || 'PENDING'}
                     </span>
                   </td>
-                  <td className="py-3 px-4">
+                  <td>
                     <select
                       onChange={(e) => updateOrderStatus(order.id, e.target.value)}
-                      className="border rounded px-2 py-1 text-sm"
+                      className="border rounded px-1 sm:px-2 py-1 text-[10px] sm:text-sm min-h-9 sm:min-h-11"
                       defaultValue={order.status || 'PENDING'}
                     >
                       <option value="PENDING">Pending</option>

@@ -11,7 +11,6 @@ import java.util.Date;
 @Component
 public class JwtUtil {
     
-    // Fixed secret key - same for all sessions
     private static final String SECRET = "mySuperSecretKeyForJWTThatIsAtLeast256BitsLong12345678901234567890";
     private final Key key = Keys.hmacShaKeyFor(SECRET.getBytes());
     
@@ -19,8 +18,8 @@ public class JwtUtil {
         return Jwts.builder()
                 .setSubject(email)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 86400000)) // 24 hours
-                .signWith(key)
+                .setExpiration(new Date(System.currentTimeMillis() + 86400000))
+                .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
     

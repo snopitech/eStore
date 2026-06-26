@@ -1,1 +1,253 @@
 @import "tailwindcss";
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+  
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    background-color: #f9fafb;
+    color: #111827;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+  }
+
+  button, 
+  a,
+  input[type="button"],
+  input[type="submit"],
+  input,
+  select,
+  textarea {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+@layer components {
+  .container-admin {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 80rem;
+  }
+
+  .admin-card {
+    background-color: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+    padding: 1rem;
+  }
+
+  .admin-grid {
+    display: grid;
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+    gap: 0.75rem;
+  }
+
+  .admin-table-wrap {
+    overflow-x: auto;
+    margin-left: -0.75rem;
+    margin-right: -0.75rem;
+  }
+
+  .admin-table {
+    width: 100%;
+    min-width: 600px;
+    font-size: 0.75rem;
+    line-height: 1rem;
+  }
+
+  .admin-table th {
+    text-align: left;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    font-weight: 600;
+    color: #4b5563;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .admin-table td {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .btn-admin {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition-property: color, background-color, border-color;
+    transition-duration: 150ms;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .btn-primary {
+    background-color: #2563eb;
+    color: white;
+  }
+  .btn-primary:hover {
+    background-color: #1d4ed8;
+  }
+
+  .btn-success {
+    background-color: #16a34a;
+    color: white;
+  }
+  .btn-success:hover {
+    background-color: #15803d;
+  }
+
+  .btn-danger {
+    background-color: #dc2626;
+    color: white;
+  }
+  .btn-danger:hover {
+    background-color: #b91c1c;
+  }
+
+  .stat-card {
+    background-color: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+    padding: 1rem;
+  }
+
+  .stat-card .label {
+    font-size: 0.75rem;
+    line-height: 1rem;
+    color: #6b7280;
+  }
+
+  .stat-card .value {
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+    font-weight: 700;
+  }
+
+  .modal-admin {
+    position: fixed;
+    inset: 0;
+    background-color: rgb(0 0 0 / 0.5);
+    z-index: 50;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+  }
+
+  .modal-admin-content {
+    background-color: white;
+    width: 100%;
+    max-width: 32rem;
+    border-top-left-radius: 1rem;
+    border-top-right-radius: 1rem;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 1rem;
+  }
+
+  .swipe-dismiss {
+    width: 3rem;
+    height: 0.25rem;
+    background-color: #d1d5db;
+    border-radius: 9999px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 1rem;
+  }
+}
+
+@media (min-width: 640px) {
+  .container-admin {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .admin-card {
+    padding: 1.5rem;
+  }
+
+  .admin-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+  }
+
+  .admin-table-wrap {
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .admin-table {
+    min-width: 700px;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+  }
+
+  .admin-table th {
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .admin-table td {
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .btn-admin {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .stat-card .value {
+    font-size: 1.5rem;
+    line-height: 2rem;
+  }
+
+  .modal-admin {
+    align-items: center;
+  }
+
+  .modal-admin-content {
+    border-radius: 1rem;
+    padding: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .admin-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@supports (padding: max(0px)) {
+  .bottom-safe {
+    padding-bottom: max(env(safe-area-inset-bottom), 8px);
+  }
+}

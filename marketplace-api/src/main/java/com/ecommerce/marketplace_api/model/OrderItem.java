@@ -108,4 +108,19 @@ public class OrderItem {
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
     }
+
+    public void setProductId(Long productId) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'setProductId'");
+    }
+
+    public void setSellerId(long l) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'setSellerId'");
+    }
+
+    public void setOrderId(long l) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'setOrderId'");
+    }
 }
