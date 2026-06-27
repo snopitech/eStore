@@ -5,7 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://estore.snopitech.com';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8087';
 
 function Header() {
   const { user, logout } = useAuth();
@@ -29,8 +29,8 @@ function Header() {
   const fetchCategories = async () => {
     setLoadingCategories(true);
     try {
-      console.log('🔄 Fetching categories from:', `${API_URL}/categories`);
-      const response = await fetch(`${API_URL}/categories`);
+      console.log('🔄 Fetching categories from:', `${API_URL}/api/categories`);
+      const response = await fetch(`${API_URL}/api/categories`);
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
