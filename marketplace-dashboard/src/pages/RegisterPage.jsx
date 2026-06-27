@@ -4,7 +4,10 @@ import { useAuth } from '../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 
-const API_BASE_URL = 'http://estore.snopitech.com/api';
+// Use environment variable with local fallback for development
+const API_BASE_URL = import.meta.env.VITE_API_URL 
+  ? `${import.meta.env.VITE_API_URL}/api` 
+  : 'http://localhost:8087/api';
 
 function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -40,6 +43,7 @@ function RegisterPage() {
     setLoading(true);
 
     try {
+      console.log('Registering at:', `${API_BASE_URL}/auth/register`);
       const registerResponse = await fetch(`${API_BASE_URL}/auth/register`, {
         method: 'POST',
         headers: {
@@ -135,6 +139,7 @@ function RegisterPage() {
     setMessage('');
 
     try {
+      console.log('Google signup at:', `${API_BASE_URL}/auth/google/register`);
       const response = await fetch(`${API_BASE_URL}/auth/google/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

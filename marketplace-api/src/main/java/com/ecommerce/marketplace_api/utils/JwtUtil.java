@@ -14,11 +14,14 @@ public class JwtUtil {
     private static final String SECRET = "mySuperSecretKeyForJWTThatIsAtLeast256BitsLong12345678901234567890";
     private final Key key = Keys.hmacShaKeyFor(SECRET.getBytes());
     
+    // 7 days in milliseconds
+    private static final long EXPIRATION_TIME = 7 * 24 * 60 * 60 * 1000; // 604,800,000 ms
+    
     public String generateToken(String email) {
         return Jwts.builder()
                 .setSubject(email)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 86400000))
+                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }

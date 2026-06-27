@@ -11,10 +11,13 @@ import {
 } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 
-const API_BASE_URL = 'http://estore.snopitech.com/api';
+// Use environment variable with local fallback for development
+const API_BASE_URL = import.meta.env.VITE_API_URL 
+  ? `${import.meta.env.VITE_API_URL}/api` 
+  : 'http://localhost:8087/api';
 
-// Your LIVE publishable key
-const stripePromise = loadStripe('pk_live_51TkTGpB8QOHyNrOICoA47jjjbsjNKiwlfJb5FgVaQvqJczwzBRwCHPqFAGq2oBQzZ6gPLMOEo5al5TBB4w7itUwS00bzkAknW3');
+// Stripe publishable key from environment variables
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
 function CheckoutForm() {
   const { cartItems, cartCount, clearCart } = useCart();
@@ -66,6 +69,8 @@ function CheckoutForm() {
     setLoading(true);
 
     try {
+      console.log('Creating order at:', `${API_BASE_URL}/orders/checkout`);
+      
       // 1. Create order
       const orderResponse = await fetch(`${API_BASE_URL}/orders/checkout`, {
         method: 'POST',
@@ -105,6 +110,7 @@ function CheckoutForm() {
       setOrderId(order.id);
 
       // 2. Create payment intent
+      console.log('Creating payment intent at:', `${API_BASE_URL}/payments/create-payment-intent`);
       const paymentResponse = await fetch(`${API_BASE_URL}/payments/create-payment-intent`, {
         method: 'POST',
         headers: {
@@ -178,12 +184,14 @@ function CheckoutForm() {
 
     if (paymentIntent.status === 'succeeded') {
       try {
-        await fetch(`${API_BASE_URL}/orders/${orderId}/payment-success`, {
+        console.log('Updating order status to PAID at:', `${API_BASE_URL}/orders/${orderId}/status`);
+        await fetch(`${API_BASE_URL}/orders/${orderId}/status`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
-          }
+          },
+          body: JSON.stringify({ status: 'PAID' })
         });
       } catch (err) {
         console.error('Error updating order:', err);

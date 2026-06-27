@@ -6,23 +6,90 @@
   /* Mobile-first base styles */
   * {
     @apply box-border;
+    -webkit-tap-highlight-color: transparent;
   }
   
   html {
     -webkit-tap-highlight-color: transparent;
+    -webkit-text-size-adjust: 100%;
+    overflow-x: hidden;
+    width: 100%;
   }
 
   body {
     @apply bg-gray-50 text-gray-900;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+    overflow-x: hidden;
+    width: 100%;
+    max-width: 100%;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overscroll-behavior: none;
   }
 
-  /* Touch-friendly tap targets - minimum 44px */
+  #root {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  /* Touch-friendly tap targets - minimum 44px (Apple HIG) */
   button, 
   a,
   input[type="button"],
-  input[type="submit"] {
-    @apply min-h-[44px] min-w-[44px];
+  input[type="submit"],
+  input[type="reset"],
+  select,
+  .clickable {
+    min-height: 44px;
+    min-width: 44px;
+    touch-action: manipulation;
+  }
+
+  /* Prevent iOS zoom on input focus */
+  input, 
+  select, 
+  textarea {
+    font-size: 16px !important;
+  }
+
+  /* Images should never overflow */
+  img, svg, video, iframe {
+    max-width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  /* Better focus states for accessibility */
+  :focus-visible {
+    @apply outline-2 outline-blue-500 outline-offset-2;
+  }
+
+  /* Disable pull-to-refresh on mobile */
+  .no-pull-refresh {
+    overscroll-behavior: contain;
+  }
+
+  /* Smooth scrolling on mobile */
+  .smooth-scroll {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+
+  /* Tap feedback */
+  .tap-feedback:active {
+    transform: scale(0.97);
+    transition: transform 0.05s ease;
+  }
+
+  /* Dark mode support */
+  @media (prefers-color-scheme: dark) {
+    body {
+      @apply bg-gray-900 text-gray-100;
+    }
   }
 }
 
@@ -56,11 +123,76 @@
 
   /* Mobile-optimized buttons */
   .btn-mobile {
-    @apply px-4 py-3 text-sm font-medium rounded-lg transition-colors min-h-[44px];
+    @apply px-4 py-3 text-sm font-medium rounded-lg transition-colors min-h-[44px] touch-manipulation;
   }
 
   .btn-primary {
     @apply bg-blue-600 text-white hover:bg-blue-700 active:bg-blue-800;
+  }
+
+  .btn-secondary {
+    @apply bg-gray-200 text-gray-800 hover:bg-gray-300 active:bg-gray-400;
+  }
+
+  .btn-outline {
+    @apply border-2 border-blue-600 text-blue-600 hover:bg-blue-50 active:bg-blue-100;
+  }
+
+  /* Mobile navigation */
+  .nav-mobile {
+    @apply fixed inset-0 bg-white z-50 transform transition-transform duration-300 ease-in-out;
+  }
+
+  .nav-mobile-open {
+    @apply translate-x-0;
+  }
+
+  .nav-mobile-closed {
+    @apply -translate-x-full;
+  }
+
+  /* Mobile search */
+  .search-mobile {
+    @apply w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[44px];
+  }
+
+  /* Mobile category pills */
+  .category-pill {
+    @apply inline-flex items-center px-3 py-2 text-sm font-medium rounded-full whitespace-nowrap min-h-[36px] touch-manipulation;
+  }
+
+  .category-pill-active {
+    @apply bg-blue-600 text-white;
+  }
+
+  .category-pill-inactive {
+    @apply bg-gray-200 text-gray-700 hover:bg-gray-300;
+  }
+
+  /* Mobile bottom navigation */
+  .bottom-nav {
+    @apply fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-around items-center py-1 px-2 z-40;
+  }
+
+  .bottom-nav-item {
+    @apply flex flex-col items-center justify-center min-h-[44px] min-w-[44px] text-xs text-gray-600 hover:text-blue-600 transition-colors;
+  }
+
+  .bottom-nav-item-active {
+    @apply text-blue-600;
+  }
+
+  /* Mobile bottom sheet */
+  .bottom-sheet {
+    @apply fixed bottom-0 left-0 right-0 bg-white rounded-t-2xl shadow-2xl transform transition-transform duration-300 ease-in-out z-50;
+  }
+
+  .bottom-sheet-open {
+    @apply translate-y-0;
+  }
+
+  .bottom-sheet-closed {
+    @apply translate-y-full;
   }
 
   /* Hide scrollbar but keep functionality */
@@ -70,5 +202,88 @@
   }
   .hide-scrollbar::-webkit-scrollbar {
     display: none;
+  }
+}
+
+@layer utilities {
+  /* Mobile responsiveness utilities */
+  .mobile-full-width {
+    @apply w-full px-3 sm:px-4;
+  }
+
+  .mobile-no-padding {
+    @apply px-0;
+  }
+
+  .mobile-text-ellipsis {
+    @apply truncate;
+  }
+
+  /* Touch manipulation */
+  .touch-manipulation {
+    touch-action: manipulation;
+  }
+
+  /* Prevent text selection on tap */
+  .no-select {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  /* Safe area insets for notched phones */
+  .safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .safe-left {
+    padding-left: env(safe-area-inset-left);
+  }
+
+  .safe-right {
+    padding-right: env(safe-area-inset-right);
+  }
+
+  /* Mobile landscape fixes */
+  @media (max-width: 812px) and (orientation: landscape) {
+    .landscape-adjust {
+      @apply py-1;
+    }
+  }
+
+  /* Small screen fixes */
+  @media (max-width: 380px) {
+    .xs-text-sm {
+      @apply text-sm;
+    }
+    .xs-px-2 {
+      @apply px-2;
+    }
+    .xs-gap-1 {
+      @apply gap-1;
+    }
+    .xs-grid-cols-2 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  /* Medium screen fixes */
+  @media (min-width: 768px) {
+    .md-text-base {
+      @apply text-base;
+    }
+  }
+
+  /* Safe area inset for iOS */
+  @supports (padding: max(0px)) {
+    .safe-area-bottom {
+      padding-bottom: max(env(safe-area-inset-bottom, 0px), 0px);
+    }
+    .safe-area-top {
+      padding-top: max(env(safe-area-inset-top, 0px), 0px);
+    }
   }
 }

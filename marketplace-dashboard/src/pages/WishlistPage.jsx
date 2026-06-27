@@ -6,7 +6,10 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 
-const API_BASE_URL = 'http://estore.snopitech.com/api';
+// Use environment variable with local fallback for development
+const API_BASE_URL = import.meta.env.VITE_API_URL 
+  ? `${import.meta.env.VITE_API_URL}/api` 
+  : 'http://localhost:8087/api';
 
 function WishlistPage() {
   const [wishlistItems, setWishlistItems] = useState([]);
@@ -22,6 +25,7 @@ function WishlistPage() {
   const fetchWishlist = async () => {
     setLoading(true);
     try {
+      console.log('Fetching wishlist from:', `${API_BASE_URL}/wishlist`);
       const response = await fetch(`${API_BASE_URL}/wishlist`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -43,6 +47,7 @@ function WishlistPage() {
 
   const removeFromWishlist = async (productId) => {
     try {
+      console.log('Removing from wishlist:', `${API_BASE_URL}/wishlist/remove/${productId}`);
       const response = await fetch(`${API_BASE_URL}/wishlist/remove/${productId}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }

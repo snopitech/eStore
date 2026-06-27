@@ -6,7 +6,10 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 
-const API_BASE_URL = 'http://estore.snopitech.com/api';
+// Use environment variable with local fallback for development
+const API_BASE_URL = import.meta.env.VITE_API_URL 
+  ? `${import.meta.env.VITE_API_URL}/api` 
+  : 'http://localhost:8087/api';
 
 function CategoryPage() {
   const { categoryId } = useParams();
@@ -27,6 +30,7 @@ function CategoryPage() {
 
   const fetchCategories = async () => {
     try {
+      console.log('Fetching categories from:', `${API_BASE_URL}/categories`);
       const response = await fetch(`${API_BASE_URL}/categories`);
       const data = await response.json();
       setCategories(Array.isArray(data) ? data : []);
@@ -38,12 +42,14 @@ function CategoryPage() {
   const fetchCategoryProducts = async (id) => {
     setLoading(true);
     try {
+      console.log('Fetching category from:', `${API_BASE_URL}/categories/${id}`);
       const categoryRes = await fetch(`${API_BASE_URL}/categories/${id}`);
       if (categoryRes.ok) {
         const catData = await categoryRes.json();
         setCategory(catData);
       }
 
+      console.log('Fetching products for category from:', `${API_BASE_URL}/products/category/${id}`);
       const productsRes = await fetch(`${API_BASE_URL}/products/category/${id}`);
       const data = await productsRes.json();
       setProducts(Array.isArray(data) ? data : []);

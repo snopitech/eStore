@@ -6,7 +6,11 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useAuth } from './AuthContext';
 
 const CartContext = createContext();
-const API_BASE_URL = 'http://estore.snopitech.com/api';
+
+// Use environment variable with local fallback for development
+const API_BASE_URL = import.meta.env.VITE_API_URL 
+  ? `${import.meta.env.VITE_API_URL}/api` 
+  : 'http://localhost:8087/api';
 
 export function CartProvider({ children }) {
   const [cartItems, setCartItems] = useState([]);
@@ -21,6 +25,7 @@ export function CartProvider({ children }) {
       return;
     }
     try {
+      console.log('Fetching cart from:', `${API_BASE_URL}/cart`);
       const response = await fetch(`${API_BASE_URL}/cart`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -51,6 +56,7 @@ export function CartProvider({ children }) {
       return false;
     }
     try {
+      console.log('Adding to cart:', `${API_BASE_URL}/cart/add`);
       const response = await fetch(`${API_BASE_URL}/cart/add`, {
         method: 'POST',
         headers: {

@@ -5,7 +5,10 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
-const API_BASE_URL = 'http://estore.snopitech.com/api';
+// Use environment variable with local fallback for development
+const API_BASE_URL = import.meta.env.VITE_API_URL 
+  ? `${import.meta.env.VITE_API_URL}/api` 
+  : 'http://localhost:8087/api';
 
 function OrderHistoryPage() {
   const [orders, setOrders] = useState([]);
@@ -14,6 +17,7 @@ function OrderHistoryPage() {
 
   const fetchOrders = async () => {
     try {
+      console.log('Fetching orders from:', `${API_BASE_URL}/orders`);
       const response = await fetch(`${API_BASE_URL}/orders`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -34,6 +38,7 @@ function OrderHistoryPage() {
     if (!window.confirm('Are you sure you want to cancel this order?')) return;
     
     try {
+      console.log('Cancelling order at:', `${API_BASE_URL}/orders/${orderId}/cancel`);
       const response = await fetch(`${API_BASE_URL}/orders/${orderId}/cancel`, {
         method: 'PUT',
         headers: {

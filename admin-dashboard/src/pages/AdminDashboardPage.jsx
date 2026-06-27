@@ -5,7 +5,10 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
-const API_BASE_URL = 'http://localhost:8087/api';
+// Use environment variable with local fallback for development
+const API_BASE_URL = import.meta.env.VITE_API_URL 
+  ? `${import.meta.env.VITE_API_URL}/api` 
+  : 'http://localhost:8087/api';
 
 function AdminDashboardPage() {
   const token = localStorage.getItem('adminToken');

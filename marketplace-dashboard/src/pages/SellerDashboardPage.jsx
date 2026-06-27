@@ -7,7 +7,10 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
 
-const API_BASE_URL = 'http://estore.snopitech.com/api';
+// Use environment variable with local fallback for development
+const API_BASE_URL = import.meta.env.VITE_API_URL 
+  ? `${import.meta.env.VITE_API_URL}/api` 
+  : 'http://localhost:8087/api';
 
 function SellerDashboardPage() {
   const { user } = useAuth();
@@ -65,6 +68,7 @@ function SellerDashboardPage() {
   const fetchCommissionSummary = async () => {
     try {
       const token = getToken();
+      console.log('Fetching commission summary from:', `${API_BASE_URL}/commissions/my-summary`);
       const response = await fetch(`${API_BASE_URL}/commissions/my-summary`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -80,6 +84,7 @@ function SellerDashboardPage() {
   const fetchMyCommissions = async () => {
     try {
       const token = getToken();
+      console.log('Fetching my commissions from:', `${API_BASE_URL}/commissions/my-commissions`);
       const response = await fetch(`${API_BASE_URL}/commissions/my-commissions`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -131,6 +136,7 @@ function SellerDashboardPage() {
   const fetchSellerStatus = async () => {
     try {
       const token = getToken();
+      console.log('Fetching seller status from:', `${API_BASE_URL}/seller/profile`);
       const response = await fetch(`${API_BASE_URL}/seller/profile`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -149,6 +155,7 @@ function SellerDashboardPage() {
   const checkLiveStatus = async () => {
     try {
       const token = getToken();
+      console.log('Checking live status from:', `${API_BASE_URL}/seller/live/status`);
       const response = await fetch(`${API_BASE_URL}/seller/live/status`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -236,6 +243,7 @@ function SellerDashboardPage() {
   const fetchSellerProducts = async () => {
     try {
       const token = getToken();
+      console.log('Fetching seller products from:', `${API_BASE_URL}/seller/products`);
       const response = await fetch(`${API_BASE_URL}/seller/products`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -269,6 +277,7 @@ function SellerDashboardPage() {
   const fetchSellerOrders = async () => {
     try {
       const token = getToken();
+      console.log('Fetching seller orders from:', `${API_BASE_URL}/orders/seller/orders`);
       const response = await fetch(`${API_BASE_URL}/orders/seller/orders`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -287,6 +296,7 @@ function SellerDashboardPage() {
 
   const fetchCategories = async () => {
     try {
+      console.log('Fetching categories from:', `${API_BASE_URL}/categories`);
       const response = await fetch(`${API_BASE_URL}/categories`);
       const data = await response.json();
       setCategories(Array.isArray(data) ? data : []);

@@ -5,14 +5,14 @@ import com.ecommerce.marketplace_api.dto.OrderItemResponse;
 import com.ecommerce.marketplace_api.dto.OrderResponse;
 import com.ecommerce.marketplace_api.model.*;
 import com.ecommerce.marketplace_api.repository.*;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -30,16 +30,22 @@ public class OrderService {
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
     private final SellerProfileRepository sellerProfileRepository;
+    private final EmailService emailService;
 
-    OrderService(OrderRepository orderRepository, OrderItemRepository orderItemRepository, 
-                 CartItemRepository cartItemRepository, ProductRepository productRepository, 
-                 UserRepository userRepository, SellerProfileRepository sellerProfileRepository) {
+    public OrderService(OrderRepository orderRepository, 
+                        OrderItemRepository orderItemRepository, 
+                        CartItemRepository cartItemRepository, 
+                        ProductRepository productRepository, 
+                        UserRepository userRepository, 
+                        SellerProfileRepository sellerProfileRepository,
+                        EmailService emailService) {
         this.orderRepository = orderRepository;
         this.orderItemRepository = orderItemRepository;
         this.cartItemRepository = cartItemRepository;
         this.productRepository = productRepository;
         this.userRepository = userRepository;
         this.sellerProfileRepository = sellerProfileRepository;
+        this.emailService = emailService;
     }
     
     @Transactional
@@ -83,6 +89,9 @@ public class OrderService {
         
         Order savedOrder = orderRepository.save(order);
         
+        // Collect seller info for email notifications
+        List<SellerInfo> sellerInfoList = new ArrayList<>();
+        
         for (CartItem cartItem : cartItems) {
             Product product = cartItem.getProduct();
             SellerProfile seller = product.getSeller();
@@ -114,11 +123,94 @@ public class OrderService {
             
             seller.setTotalSales(seller.getTotalSales() + cartItem.getQuantity());
             sellerProfileRepository.save(seller);
+            
+            sellerInfoList.add(new SellerInfo(
+                seller,
+                product.getName(),
+                cartItem.getQuantity(),
+                itemTotal,
+                sellerNet
+            ));
         }
         
         cartItemRepository.deleteByUser(buyer);
         
+        // Send email to all sellers
+        sendSellerOrderNotifications(savedOrder, buyer, sellerInfoList);
+        
         return convertToResponse(savedOrder);
+    }
+    
+    // ===== SEND SELLER ORDER NOTIFICATIONS =====
+    @SuppressWarnings("unchecked")
+    private void sendSellerOrderNotifications(Order order, User buyer, List<SellerInfo> sellerInfoList) {
+        try {
+            System.out.println("📧 Sending order notifications to sellers...");
+            
+            String customerName = (buyer.getFirstName() != null ? buyer.getFirstName() : "") + 
+                                 (buyer.getLastName() != null ? " " + buyer.getLastName() : "");
+            if (customerName.trim().isEmpty()) {
+                customerName = buyer.getEmail();
+            }
+            
+            // Get shipping address
+            String shippingAddress = "N/A";
+            try {
+                if (order.getShippingAddress() != null) {
+                    ObjectMapper mapper = new ObjectMapper();
+                    Map<String, String> address = mapper.readValue(order.getShippingAddress(), Map.class);
+                    shippingAddress = address.getOrDefault("address", "N/A") + ", " + 
+                                     address.getOrDefault("city", "N/A") + ", " + 
+                                     address.getOrDefault("state", "N/A") + " " + 
+                                     address.getOrDefault("zipCode", "N/A");
+                }
+            } catch (Exception e) {
+                shippingAddress = "N/A";
+            }
+            
+            for (SellerInfo info : sellerInfoList) {
+                SellerProfile seller = info.seller;
+                if (seller != null && seller.getUser() != null && seller.getUser().getEmail() != null) {
+                    String sellerEmail = seller.getUser().getEmail();
+                    
+                    emailService.sendMarketplaceOrderNotificationToSeller(
+                        sellerEmail,
+                        seller.getStoreName() != null ? seller.getStoreName() : "Seller",
+                        info.productName,
+                        "eStore",
+                        order.getOrderNumber(),
+                        info.quantity,
+                        info.itemTotal.doubleValue(),
+                        info.sellerNet.doubleValue(),
+                        customerName,
+                        shippingAddress,
+                        order.getCreatedAt() != null ? order.getCreatedAt().toString() : "N/A"
+                    );
+                    
+                    System.out.println("✅ Seller notification sent to: " + sellerEmail);
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("❌ Failed to send seller notifications: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    
+    // ===== INNER CLASS FOR SELLER INFO =====
+    private static class SellerInfo {
+        SellerProfile seller;
+        String productName;
+        int quantity;
+        BigDecimal itemTotal;
+        BigDecimal sellerNet;
+        
+        SellerInfo(SellerProfile seller, String productName, int quantity, BigDecimal itemTotal, BigDecimal sellerNet) {
+            this.seller = seller;
+            this.productName = productName;
+            this.quantity = quantity;
+            this.itemTotal = itemTotal;
+            this.sellerNet = sellerNet;
+        }
     }
     
     public List<OrderResponse> getUserOrders(Long userId) {
@@ -205,22 +297,18 @@ public class OrderService {
         return convertToResponse(saved);
     }
 
-    // ===== CHECK IF USER PURCHASED PRODUCT =====
     public boolean hasUserPurchasedProduct(Long userId, Long productId) {
-        // Get all orders for this user
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         
         List<Order> orders = orderRepository.findByBuyer(user);
         
         for (Order order : orders) {
-            // Only check completed orders
             if (order.getStatus() == OrderStatus.PAID || 
                 order.getStatus() == OrderStatus.PROCESSING ||
                 order.getStatus() == OrderStatus.SHIPPED || 
                 order.getStatus() == OrderStatus.DELIVERED) {
                 
-                // Check if this order contains the product
                 List<OrderItem> orderItems = orderItemRepository.findByOrder(order);
                 boolean productFound = orderItems.stream()
                     .anyMatch(item -> item.getProduct() != null && 
@@ -237,6 +325,7 @@ public class OrderService {
         return "ORD-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
     }
     
+    // ===== CONVERT TO RESPONSE - FIXED WITH BUYER INFO =====
     private OrderResponse convertToResponse(Order order) {
         List<OrderItem> orderItems = orderItemRepository.findByOrder(order);
         List<OrderItemResponse> itemResponses = orderItems.stream()
@@ -255,16 +344,21 @@ public class OrderService {
         response.setPaymentMethod(order.getPaymentMethod().name());
         response.setPaymentStatus(order.getPaymentStatus().name());
         response.setPaidAt(order.getPaidAt());
-        response.setShippingAddress(order.getShippingAddress());
         response.setCreatedAt(order.getCreatedAt());
         response.setItems(itemResponses);
         
-        // Set buyer info
+        // ✅ FIX: Set shipping address
+        if (order.getShippingAddress() != null) {
+            response.setShippingAddress(order.getShippingAddress());
+        }
+        
+        // ✅ FIX: Set buyer info
         User buyer = order.getBuyer();
         if (buyer != null) {
             String firstName = buyer.getFirstName() != null ? buyer.getFirstName() : "";
             String lastName = buyer.getLastName() != null ? buyer.getLastName() : "";
-            response.setBuyerName((firstName + " " + lastName).trim());
+            String fullName = (firstName + " " + lastName).trim();
+            response.setBuyerName(fullName.isEmpty() ? buyer.getEmail() : fullName);
             response.setBuyerEmail(buyer.getEmail());
         }
         

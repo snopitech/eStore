@@ -4,7 +4,10 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 
-const API_BASE_URL = 'http://estore.snopitech.com/api';
+// Use environment variable with local fallback for development
+const API_BASE_URL = import.meta.env.VITE_API_URL 
+  ? `${import.meta.env.VITE_API_URL}/api` 
+  : 'http://localhost:8087/api';
 
 function LoginPage() {
   const [email, setEmail] = useState('');
@@ -22,6 +25,7 @@ function LoginPage() {
 
     try {
       console.log('Attempting login for:', email);
+      console.log('API URL:', `${API_BASE_URL}/auth/login`);
       
       const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: 'POST',

@@ -7,7 +7,10 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 
-const API_BASE_URL = 'http://estore.snopitech.com/api';
+// Use environment variable with local fallback for development
+const API_BASE_URL = import.meta.env.VITE_API_URL 
+  ? `${import.meta.env.VITE_API_URL}/api` 
+  : 'http://localhost:8087/api';
 
 function SearchPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -48,6 +51,7 @@ function SearchPage() {
       if (inStockOnly) params.append('inStock', true);
       if (auctionOnly) params.append('isAuction', true);
 
+      console.log('Searching at:', `${API_BASE_URL}/search?${params.toString()}`);
       const response = await fetch(`${API_BASE_URL}/search?${params.toString()}`);
       if (response.ok) {
         const data = await response.json();
@@ -65,6 +69,7 @@ function SearchPage() {
 
   const fetchCategories = async () => {
     try {
+      console.log('Fetching categories from:', `${API_BASE_URL}/categories`);
       const response = await fetch(`${API_BASE_URL}/categories`);
       const data = await response.json();
       setCategories(Array.isArray(data) ? data : []);
