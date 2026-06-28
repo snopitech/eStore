@@ -42,6 +42,31 @@ function CategoryPage() {
   const fetchCategoryProducts = async (id) => {
     setLoading(true);
     try {
+      // ✅ First, get all categories to check if this is "Miscellaneous"
+      const allCategories = await fetch(`${API_BASE_URL}/categories`).then(res => res.json());
+      const categoryObj = allCategories.find(c => c.id == id);
+      
+      // ✅ Check if this is the Miscellaneous category (by name OR if it's the specific ID)
+      if (categoryObj && categoryObj.name === 'Miscellaneous') {
+        console.log('🔍 Fetching Miscellaneous products from:', `${API_BASE_URL}/products/categories/miscellaneous`);
+        const response = await fetch(`${API_BASE_URL}/products/categories/miscellaneous`);
+        console.log('📡 Response status:', response.status);
+        
+        if (response.ok) {
+          const data = await response.json();
+          console.log('📦 Miscellaneous products received:', data);
+          console.log('📊 Number of products:', data.length);
+          setProducts(Array.isArray(data) ? data : []);
+          setCategory(categoryObj);
+        } else {
+          console.log('❌ Response not OK:', response.status);
+          setProducts([]);
+        }
+        setLoading(false);
+        return;
+      }
+
+      // ✅ Regular category handling (if category is NOT Miscellaneous)
       console.log('Fetching category from:', `${API_BASE_URL}/categories/${id}`);
       const categoryRes = await fetch(`${API_BASE_URL}/categories/${id}`);
       if (categoryRes.ok) {
@@ -55,7 +80,7 @@ function CategoryPage() {
       setProducts(Array.isArray(data) ? data : []);
       setLoading(false);
     } catch (error) {
-      console.error('Error fetching category products:', error);
+      console.error('❌ Error fetching category products:', error);
       setProducts([]);
       setLoading(false);
     }

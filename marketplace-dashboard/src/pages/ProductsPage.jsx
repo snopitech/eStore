@@ -7,7 +7,10 @@ import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 
-const API_BASE_URL = 'http://estore.snopitech.com/api';
+// Use environment variable with local fallback for development
+const API_BASE_URL = import.meta.env.VITE_API_URL 
+  ? `${import.meta.env.VITE_API_URL}/api` 
+  : 'http://localhost:8087/api';
 
 function ProductsPage() {
   const [products, setProducts] = useState([]);
@@ -31,6 +34,7 @@ function ProductsPage() {
 
   const fetchProducts = async () => {
     try {
+      console.log('Fetching products from:', `${API_BASE_URL}/products`);
       const response = await fetch(`${API_BASE_URL}/products`);
       const data = await response.json();
       setProducts(Array.isArray(data) ? data : []);
@@ -44,6 +48,7 @@ function ProductsPage() {
 
   const fetchCategories = async () => {
     try {
+      console.log('Fetching categories from:', `${API_BASE_URL}/categories`);
       const response = await fetch(`${API_BASE_URL}/categories`);
       const data = await response.json();
       setCategories(Array.isArray(data) ? data : []);

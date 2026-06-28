@@ -33,6 +33,13 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     // ===== FIND PRODUCTS BY SELLER (already exists) =====
     List<Product> findBySellerAndIsLiveTrue(SellerProfile seller);
     
+    // ===== ✅ ADD THIS - FIND PRODUCTS BY SELLER ID =====
+    @Query("SELECT p FROM Product p WHERE p.seller.id = :sellerId")
+    List<Product> findBySellerId(@Param("sellerId") Long sellerId);
+    
+    // ===== ✅ ADD THIS - FIND PRODUCTS WITHOUT CATEGORY =====
+    List<Product> findByCategoryIsNull();
+    
     // ===== COUNT LIVE PRODUCTS BY SELLER =====
     @Query("SELECT COUNT(p) FROM Product p WHERE p.isLive = true AND p.seller = :seller")
     long countLiveProductsBySeller(@Param("seller") SellerProfile seller);
@@ -76,4 +83,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     // ===== COUNT TOTAL LIVE PRODUCTS =====
     @Query("SELECT COUNT(p) FROM Product p WHERE p.isLive = true AND (p.liveEndTime IS NULL OR p.liveEndTime > CURRENT_TIMESTAMP)")
     long countCurrentlyLiveProducts();
+
+    @Query("SELECT p FROM Product p WHERE p.category IS NULL OR p.category.id = (SELECT c.id FROM Category c WHERE c.name = 'Miscellaneous')")
+    List<Product> findProductsForMiscellaneous();
 }

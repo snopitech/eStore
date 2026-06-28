@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 /* eslint-disable no-empty */
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react-hooks/immutability */
@@ -34,6 +35,17 @@ function SellerDashboardPage() {
   });
   const [commissions, setCommissions] = useState([]);
   const [payoutLoading, setPayoutLoading] = useState(false);
+  
+  // ===== ANALYTICS STATE =====
+  const [analyticsLoading, setAnalyticsLoading] = useState(true);
+  const [salesData, setSalesData] = useState(null);
+  const [revenueData, setRevenueData] = useState(null);
+  const [topProducts, setTopProducts] = useState([]);
+  const [marketplaceData, setMarketplaceData] = useState(null);
+  const [customerData, setCustomerData] = useState(null);
+  const [inventoryData, setInventoryData] = useState(null);
+  const [selectedPeriod, setSelectedPeriod] = useState('month');
+
   const [formData, setFormData] = useState({
     name: '',
     slug: '',
@@ -51,6 +63,67 @@ function SellerDashboardPage() {
 
   const getToken = () => localStorage.getItem('token') || localStorage.getItem('adminToken');
 
+  // ===== FETCH ANALYTICS FUNCTIONS =====
+  const fetchSellerAnalytics = async () => {
+    setAnalyticsLoading(true);
+    try {
+      const token = getToken();
+      const response = await fetch(`${API_BASE_URL}/analytics/seller`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setSalesData(data.salesOverview);
+        setRevenueData(data.revenueOverTime);
+        setTopProducts(data.topProducts || []);
+        setMarketplaceData(data.salesByMarketplace);
+        setCustomerData(data.customerInsights);
+        setInventoryData(data.inventoryStatus);
+        console.log('✅ Seller analytics loaded:', data);
+      } else {
+        console.error('Failed to fetch seller analytics');
+      }
+    } catch (error) {
+      console.error('Error fetching seller analytics:', error);
+    } finally {
+      setAnalyticsLoading(false);
+    }
+  };
+
+  const fetchRevenueByPeriod = async (period) => {
+    try {
+      const token = getToken();
+      const response = await fetch(`${API_BASE_URL}/analytics/seller/revenue?period=${period}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setRevenueData(data);
+      }
+    } catch (error) {
+      console.error('Error fetching revenue data:', error);
+    }
+  };
+
+  const handlePeriodChange = (period) => {
+    setSelectedPeriod(period);
+    fetchRevenueByPeriod(period);
+  };
+
+  const getMarketplaceColor = (marketplace) => {
+    const colors = {
+      'AMAZON': 'text-blue-600',
+      'WALMART': 'text-yellow-600',
+      'EBAY': 'text-purple-600',
+      'TIKTOK': 'text-black',
+      'GOOGLE': 'text-green-600',
+      'ETSY': 'text-pink-600',
+      'ESTORE': 'text-blue-800'
+    };
+    return colors[marketplace] || 'text-gray-600';
+  };
+
   useEffect(() => {
     if (!user || user.userType !== 'SELLER') {
       return;
@@ -62,6 +135,7 @@ function SellerDashboardPage() {
     checkLiveStatus();
     fetchCommissionSummary();
     fetchMyCommissions();
+    fetchSellerAnalytics(); // ✅ Added analytics fetch
   }, [user]);
 
   // ===== FETCH FUNCTIONS =====
@@ -598,7 +672,7 @@ function SellerDashboardPage() {
               activeTab === 'analytics' ? 'border-b-2 border-blue-600 text-blue-600 font-semibold' : 'text-gray-500'
             }`}
           >
-            Analytics
+            📊 Analytics
           </button>
         </div>
 
@@ -1094,8 +1168,199 @@ function SellerDashboardPage() {
 
         {/* Analytics Tab */}
         {activeTab === 'analytics' && (
-          <div className="bg-white rounded-lg shadow p-6 sm:p-8 text-center">
-            <p className="text-gray-500 text-sm sm:text-base">Analytics coming soon...</p>
+          <div className="space-y-4 sm:space-y-6">
+            {/* Period Selector */}
+            <div className="flex flex-wrap justify-end gap-1 sm:gap-2">
+              <button
+                onClick={() => handlePeriodChange('week')}
+                className={`px-2 sm:px-3 py-1 rounded text-[10px] sm:text-sm min-h-9 sm:min-h-11 ${
+                  selectedPeriod === 'week' ? 'bg-blue-600 text-white' : 'bg-gray-200'
+                }`}
+              >
+                Week
+              </button>
+              <button
+                onClick={() => handlePeriodChange('month')}
+                className={`px-2 sm:px-3 py-1 rounded text-[10px] sm:text-sm min-h-9 sm:min-h-11 ${
+                  selectedPeriod === 'month' ? 'bg-blue-600 text-white' : 'bg-gray-200'
+                }`}
+              >
+                Month
+              </button>
+              <button
+                onClick={() => handlePeriodChange('year')}
+                className={`px-2 sm:px-3 py-1 rounded text-[10px] sm:text-sm min-h-9 sm:min-h-11 ${
+                  selectedPeriod === 'year' ? 'bg-blue-600 text-white' : 'bg-gray-200'
+                }`}
+              >
+                Year
+              </button>
+            </div>
+
+            {analyticsLoading ? (
+              <div className="flex items-center justify-center h-64 bg-white rounded-lg shadow">
+                <div className="text-xl">Loading analytics...</div>
+              </div>
+            ) : (
+              <>
+                {/* Sales Overview Cards */}
+                {salesData && (
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4">
+                    <div className="bg-white rounded-lg shadow p-3 sm:p-4">
+                      <div className="text-[10px] sm:text-sm text-gray-500">Total Revenue</div>
+                      <div className="text-base sm:text-2xl font-bold text-green-600">
+                        ${salesData.totalRevenue?.toFixed(2) || '0.00'}
+                      </div>
+                    </div>
+                    <div className="bg-white rounded-lg shadow p-3 sm:p-4">
+                      <div className="text-[10px] sm:text-sm text-gray-500">Total Orders</div>
+                      <div className="text-base sm:text-2xl font-bold text-blue-600">
+                        {salesData.totalOrders || 0}
+                      </div>
+                    </div>
+                    <div className="bg-white rounded-lg shadow p-3 sm:p-4">
+                      <div className="text-[10px] sm:text-sm text-gray-500">Avg Order Value</div>
+                      <div className="text-base sm:text-2xl font-bold text-purple-600">
+                        ${salesData.averageOrderValue?.toFixed(2) || '0.00'}
+                      </div>
+                    </div>
+                    <div className="bg-white rounded-lg shadow p-3 sm:p-4">
+                      <div className="text-[10px] sm:text-sm text-gray-500">Growth</div>
+                      <div className={`text-base sm:text-2xl font-bold ${salesData.growth >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        {salesData.growth >= 0 ? '↑' : '↓'} {Math.abs(salesData.growth)}%
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Revenue Chart + Sales by Marketplace */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                  {revenueData && (
+                    <div className="bg-white rounded-lg shadow p-4 sm:p-6">
+                      <h3 className="font-semibold text-base sm:text-lg mb-3 sm:mb-4">📈 Revenue Over Time</h3>
+                      <div className="h-48 sm:h-64">
+                        <div className="flex items-end h-36 sm:h-48 gap-0.5 sm:gap-1">
+                          {revenueData.labels?.map((label, index) => {
+                            const maxRevenue = Math.max(...(revenueData.revenue || [1]));
+                            const height = maxRevenue > 0 ? (revenueData.revenue[index] / maxRevenue * 100) : 0;
+                            return (
+                              <div key={index} className="flex-1 flex flex-col items-center">
+                                <div 
+                                  className="w-full bg-blue-500 rounded-t min-h-1"
+                                  style={{ height: `${Math.max(height, 5)}%` }}
+                                ></div>
+                                <span className="text-[8px] sm:text-xs text-gray-500 mt-1 truncate w-full text-center">{label}</span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {marketplaceData && (
+                    <div className="bg-white rounded-lg shadow p-4 sm:p-6">
+                      <h3 className="font-semibold text-base sm:text-lg mb-3 sm:mb-4">🌐 Sales by Marketplace</h3>
+                      <div className="space-y-2 sm:space-y-3">
+                        {marketplaceData.marketplaces?.map((item) => {
+                          const percentage = marketplaceData.totalRevenue > 0
+                            ? (item.revenue / marketplaceData.totalRevenue * 100)
+                            : 0;
+                          return (
+                            <div key={item.marketplace}>
+                              <div className="flex justify-between text-[10px] sm:text-sm">
+                                <span className={getMarketplaceColor(item.marketplace)}>
+                                  {item.marketplace}
+                                </span>
+                                <span>${item.revenue?.toFixed(2) || '0.00'} ({Math.round(percentage)}%)</span>
+                              </div>
+                              <div className="w-full bg-gray-200 rounded-full h-1.5 sm:h-2">
+                                <div 
+                                  className="bg-blue-600 h-1.5 sm:h-2 rounded-full"
+                                  style={{ width: `${percentage}%` }}
+                                ></div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Top Products + Customer Insights */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                  <div className="bg-white rounded-lg shadow p-4 sm:p-6">
+                    <h3 className="font-semibold text-base sm:text-lg mb-3 sm:mb-4">🏆 Your Top Products</h3>
+                    {topProducts.length === 0 ? (
+                      <p className="text-gray-500 text-sm">No products sold yet.</p>
+                    ) : (
+                      <div className="space-y-2 sm:space-y-3">
+                        {topProducts.map((product, index) => (
+                          <div key={product.id} className="flex items-center justify-between border-b pb-2">
+                            <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                              <span className="font-bold text-gray-400 text-xs sm:text-sm">#{index + 1}</span>
+                              <div className="min-w-0">
+                                <div className="font-medium text-xs sm:text-sm truncate">{product.name}</div>
+                                <div className="text-[10px] sm:text-xs text-gray-500">{product.salesCount} sales</div>
+                              </div>
+                            </div>
+                            <div className="text-right shrink-0">
+                              <div className="font-semibold text-xs sm:text-sm">${product.price}</div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {customerData && (
+                    <div className="bg-white rounded-lg shadow p-4 sm:p-6">
+                      <h3 className="font-semibold text-base sm:text-lg mb-3 sm:mb-4">👥 Customer Insights</h3>
+                      <div className="grid grid-cols-3 gap-2 sm:gap-4">
+                        <div className="text-center">
+                          <div className="text-lg sm:text-2xl font-bold text-blue-600">{customerData.totalCustomers || 0}</div>
+                          <div className="text-[10px] sm:text-sm text-gray-500">Total</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-lg sm:text-2xl font-bold text-green-600">{customerData.repeatCustomers || 0}</div>
+                          <div className="text-[10px] sm:text-sm text-gray-500">Repeat</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-lg sm:text-2xl font-bold text-purple-600">{customerData.repeatRate || 0}%</div>
+                          <div className="text-[10px] sm:text-sm text-gray-500">Rate</div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Inventory Status */}
+                {inventoryData && (
+                  <div className="bg-white rounded-lg shadow p-4 sm:p-6">
+                    <h3 className="font-semibold text-base sm:text-lg mb-3 sm:mb-4">📦 Your Inventory Status</h3>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4">
+                      <div className="text-center">
+                        <div className="text-lg sm:text-2xl font-bold text-blue-600">{inventoryData.totalProducts || 0}</div>
+                        <div className="text-[10px] sm:text-sm text-gray-500">Total</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-lg sm:text-2xl font-bold text-green-600">{inventoryData.activeProducts || 0}</div>
+                        <div className="text-[10px] sm:text-sm text-gray-500">Active</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-lg sm:text-2xl font-bold text-red-600">{inventoryData.outOfStock || 0}</div>
+                        <div className="text-[10px] sm:text-sm text-gray-500">Out of Stock</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-lg sm:text-2xl font-bold text-yellow-600">{inventoryData.lowStock || 0}</div>
+                        <div className="text-[10px] sm:text-sm text-gray-500">Low Stock</div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
           </div>
         )}
       </div>

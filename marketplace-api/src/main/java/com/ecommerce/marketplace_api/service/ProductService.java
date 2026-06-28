@@ -45,6 +45,21 @@ public class ProductService {
         return seller;
     }
     
+    // ===== HELPER METHOD: Get or create Miscellaneous category =====
+    private Category getOrCreateMiscellaneousCategory() {
+        return categoryRepository.findByName("Miscellaneous")
+                .orElseGet(() -> {
+                    Category misc = new Category();
+                    misc.setName("Miscellaneous");
+                    misc.setSlug("miscellaneous");
+                    misc.setDescription("Products that don't belong to any specific category");
+                    misc.setIsActive(true);
+                    misc.setLevel(0);
+                    misc.setDisplayOrder(999);
+                    return categoryRepository.save(misc);
+                });
+    }
+    
     // ===== CREATE PRODUCT =====
     @Transactional
     public ProductResponse createProduct(Long userId, ProductRequest request) {
@@ -54,10 +69,14 @@ public class ProductService {
             throw new RuntimeException("Slug already exists");
         }
         
+        // AUTO-ASSIGN TO "MISCELLANEOUS" IF NO CATEGORY
         Category category = null;
         if (request.getCategoryId() != null) {
             category = categoryRepository.findById(request.getCategoryId())
                 .orElseThrow(() -> new RuntimeException("Category not found"));
+        } else {
+            // No category provided → assign to "Miscellaneous"
+            category = getOrCreateMiscellaneousCategory();
         }
         
         Product product = new Product();
@@ -141,10 +160,14 @@ public class ProductService {
             throw new RuntimeException("Slug already exists");
         }
         
+        // AUTO-ASSIGN TO "MISCELLANEOUS" IF NO CATEGORY
         Category category = null;
         if (request.getCategoryId() != null) {
             category = categoryRepository.findById(request.getCategoryId())
                 .orElseThrow(() -> new RuntimeException("Category not found"));
+        } else {
+            // No category provided → assign to "Miscellaneous"
+            category = getOrCreateMiscellaneousCategory();
         }
         
         product.setCategory(category);
@@ -210,6 +233,38 @@ public class ProductService {
         }
         
         return convertToResponse(product);
+    }
+    
+    // ===== GET PRODUCTS WITHOUT CATEGORY =====
+    public List<ProductResponse> getProductsWithoutCategory() {
+        return productRepository.findByCategoryIsNull().stream()
+            .map(this::convertToResponse)
+            .collect(Collectors.toList());
+    }
+    
+    // ===== ✅ NEW: GET PRODUCTS FOR MISCELLANEOUS CATEGORY (INCLUDES NULL CATEGORY) =====
+    public List<ProductResponse> getMiscellaneousProducts() {
+        // Get products with NULL category OR the Miscellaneous category
+        List<Product> products = productRepository.findProductsForMiscellaneous();
+        
+        return products.stream()
+                .filter(p -> p.getStatus() == ProductStatus.ACTIVE)
+                .map(this::convertToResponse)
+                .collect(Collectors.toList());
+    }
+    
+    // ===== REASSIGN PRODUCT TO MISCELLANEOUS (ADMIN ONLY) =====
+    @Transactional
+    public ProductResponse reassignToMiscellaneous(Long productId) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+        
+        Category miscellaneous = getOrCreateMiscellaneousCategory();
+        product.setCategory(miscellaneous);
+        product.setUpdatedAt(LocalDateTime.now());
+        
+        Product saved = productRepository.save(product);
+        return convertToResponse(saved);
     }
     
     // ===== LIVE STREAMING METHODS =====

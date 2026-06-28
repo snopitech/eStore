@@ -43,6 +43,19 @@ public class ProductController {
         return ResponseEntity.ok(productService.getProductsByCategory(categoryId));
     }
     
+    // ===== ✅ NEW: GET PRODUCTS FOR MISCELLANEOUS CATEGORY =====
+    @GetMapping("/products/categories/miscellaneous")
+    public ResponseEntity<?> getMiscellaneousProducts() {
+        try {
+            List<ProductResponse> products = productService.getMiscellaneousProducts();
+            return ResponseEntity.ok(products);
+        } catch (Exception e) {
+            Map<String, String> response = new HashMap<>();
+            response.put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+    
     // ===== NEW: LIVE STREAMING ENDPOINTS =====
     
     // Get all currently live products

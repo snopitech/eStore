@@ -5,13 +5,10 @@ import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 
-// ===== CHANGE THIS LINE =====
-// From: const API_BASE_URL = 'http://estore.snopitech.com/api';
-// To: const API_BASE_URL = '/api';
-// OR use environment variable:
+// Use environment variable with local fallback for development
 const API_BASE_URL = import.meta.env.VITE_API_URL 
   ? `${import.meta.env.VITE_API_URL}/api` 
-  : '/api';
+  : 'http://localhost:8087/api';
 
 function HomePage() {
   const [products, setProducts] = useState([]);

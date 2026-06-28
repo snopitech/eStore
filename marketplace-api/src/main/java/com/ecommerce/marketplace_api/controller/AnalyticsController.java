@@ -26,6 +26,9 @@ public class AnalyticsController {
         this.jwtUtil = jwtUtil;
     }
 
+    // ============================================================
+    // ===== HELPER METHODS =====
+    // ============================================================
     private User getAuthenticatedAdmin(String authHeader) {
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             throw new RuntimeException("Authentication required");
@@ -39,6 +42,24 @@ public class AnalyticsController {
         }
         return user;
     }
+
+    private User getAuthenticatedSeller(String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new RuntimeException("Authentication required");
+        }
+        String token = authHeader.substring(7);
+        String email = jwtUtil.extractEmail(token);
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        if (user.getUserType() != UserType.SELLER) {
+            throw new RuntimeException("Seller access required");
+        }
+        return user;
+    }
+
+    // ============================================================
+    // ===== ADMIN ANALYTICS (EXISTING - PRESERVED) =====
+    // ============================================================
 
     /**
      * Get sales overview
@@ -196,6 +217,139 @@ public class AnalyticsController {
             response.put("customerInsights", analyticsService.getCustomerInsights());
             response.put("inventoryStatus", analyticsService.getInventoryStatus());
 
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    // ============================================================
+    // ===== SELLER ANALYTICS (NEW) =====
+    // ============================================================
+
+    /**
+     * Get seller dashboard analytics
+     * GET /api/analytics/seller
+     */
+    @GetMapping("/seller")
+    public ResponseEntity<?> getSellerAnalytics(
+            @RequestHeader(value = "Authorization", required = false) String authHeader) {
+        try {
+            User seller = getAuthenticatedSeller(authHeader);
+            Long sellerId = seller.getId();
+            
+            Map<String, Object> response = new java.util.HashMap<>();
+            response.put("salesOverview", analyticsService.getSellerSalesOverview(sellerId));
+            response.put("revenueOverTime", analyticsService.getSellerRevenueOverTime(sellerId, "month"));
+            response.put("topProducts", analyticsService.getSellerTopProducts(sellerId, 10));
+            response.put("salesByMarketplace", analyticsService.getSellerSalesByMarketplace(sellerId));
+            response.put("commissionSummary", analyticsService.getSellerCommissionSummary(sellerId));
+            response.put("customerInsights", analyticsService.getSellerCustomerInsights(sellerId));
+            response.put("inventoryStatus", analyticsService.getSellerInventoryStatus(sellerId));
+
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    /**
+     * Get seller revenue over time
+     * GET /api/analytics/seller/revenue?period=month
+     */
+    @GetMapping("/seller/revenue")
+    public ResponseEntity<?> getSellerRevenueOverTime(
+            @RequestHeader(value = "Authorization", required = false) String authHeader,
+            @RequestParam(defaultValue = "month") String period) {
+        try {
+            User seller = getAuthenticatedSeller(authHeader);
+            Long sellerId = seller.getId();
+            Map<String, Object> response = analyticsService.getSellerRevenueOverTime(sellerId, period);
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    /**
+     * Get seller top products
+     * GET /api/analytics/seller/top-products?limit=10
+     */
+    @GetMapping("/seller/top-products")
+    public ResponseEntity<?> getSellerTopProducts(
+            @RequestHeader(value = "Authorization", required = false) String authHeader,
+            @RequestParam(defaultValue = "10") int limit) {
+        try {
+            User seller = getAuthenticatedSeller(authHeader);
+            Long sellerId = seller.getId();
+            return ResponseEntity.ok(analyticsService.getSellerTopProducts(sellerId, limit));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    /**
+     * Get seller sales by marketplace
+     * GET /api/analytics/seller/marketplace
+     */
+    @GetMapping("/seller/marketplace")
+    public ResponseEntity<?> getSellerSalesByMarketplace(
+            @RequestHeader(value = "Authorization", required = false) String authHeader) {
+        try {
+            User seller = getAuthenticatedSeller(authHeader);
+            Long sellerId = seller.getId();
+            Map<String, Object> response = analyticsService.getSellerSalesByMarketplace(sellerId);
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    /**
+     * Get seller commission summary
+     * GET /api/analytics/seller/commission
+     */
+    @GetMapping("/seller/commission")
+    public ResponseEntity<?> getSellerCommissionSummary(
+            @RequestHeader(value = "Authorization", required = false) String authHeader) {
+        try {
+            User seller = getAuthenticatedSeller(authHeader);
+            Long sellerId = seller.getId();
+            Map<String, Object> response = analyticsService.getSellerCommissionSummary(sellerId);
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    /**
+     * Get seller customer insights
+     * GET /api/analytics/seller/customers
+     */
+    @GetMapping("/seller/customers")
+    public ResponseEntity<?> getSellerCustomerInsights(
+            @RequestHeader(value = "Authorization", required = false) String authHeader) {
+        try {
+            User seller = getAuthenticatedSeller(authHeader);
+            Long sellerId = seller.getId();
+            Map<String, Object> response = analyticsService.getSellerCustomerInsights(sellerId);
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    /**
+     * Get seller inventory status
+     * GET /api/analytics/seller/inventory
+     */
+    @GetMapping("/seller/inventory")
+    public ResponseEntity<?> getSellerInventoryStatus(
+            @RequestHeader(value = "Authorization", required = false) String authHeader) {
+        try {
+            User seller = getAuthenticatedSeller(authHeader);
+            Long sellerId = seller.getId();
+            Map<String, Object> response = analyticsService.getSellerInventoryStatus(sellerId);
             return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
